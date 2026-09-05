@@ -1,0 +1,2002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Squeeze — Prototype v7</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFF6E9;
+    --ink:#26243A;
+    --trust:#2EC4B6;
+    --timing:#FFB84C;
+    --urgency:#FF6B5B;
+    --urgency-dark:#D6493B;
+    --china:#FF6B5B;
+    --eu:#2EC4B6;
+    --teamA:#8B5FBF;
+    --teamB:#FF9F5B;
+    --gold:#FFD23F;
+    --card:#FFFFFF;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 20%, rgba(139,95,191,0.08), transparent 40%),
+      radial-gradient(circle at 85% 80%, rgba(46,196,182,0.10), transparent 40%),
+      var(--paper);
+    font-family:'Nunito', sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    overflow-x:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  h1,h2,h3, .display{ font-family:'Baloo 2', sans-serif; }
+  #app{ position:relative; width:100%; max-width:720px; min-height:600px; background:var(--card); border-radius:28px; box-shadow:0 20px 60px rgba(38,36,58,0.15), 0 2px 0 rgba(38,36,58,0.05) inset; overflow:hidden; display:flex; flex-direction:column; }
+
+  #top-controls{ position:absolute; top:16px; left:16px; z-index:50; display:flex; gap:8px; align-items:center; }
+  #lang-toggle{ display:flex; background:#f1ece0; border-radius:999px; padding:3px; font-family:'Baloo 2'; font-weight:700; font-size:12px; }
+  #lang-toggle button{ border:none; background:transparent; padding:6px 12px; border-radius:999px; cursor:pointer; color:#9c98ab; }
+  #lang-toggle button.active{ background:var(--ink); color:#fff; }
+  #music-toggle{ border:none; background:#f1ece0; border-radius:999px; padding:6px 12px; font-family:'Baloo 2'; font-weight:700; font-size:12px; color:#9c98ab; cursor:pointer; }
+  #music-toggle.on{ background:var(--ink); color:#fff; }
+
+  #score-badge{ position:absolute; top:16px; right:16px; z-index:50; display:flex; align-items:center; gap:8px; background:var(--ink); color:var(--paper); padding:8px 14px 8px 10px; border-radius:999px; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:15px; box-shadow:0 6px 16px rgba(38,36,58,0.25); transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+  #score-badge.bump{ transform:scale(1.18); }
+  #score-badge .heart{ width:22px;height:22px; border-radius:50%; background:var(--gold); display:flex;align-items:center;justify-content:center; font-size:13px; }
+
+  .scene{ display:none; flex-direction:column; align-items:center; justify-content:center; flex:1; padding:64px 36px 36px; text-align:center; position:relative; }
+  .scene.active{ display:flex; }
+  .eyebrow{ font-size:12px; letter-spacing:.12em; text-transform:uppercase; font-weight:800; color:var(--teamA); margin-bottom:6px; }
+  .headline{ font-size:25px; font-weight:700; line-height:1.25; max-width:480px; margin:0 0 8px; }
+  .sub{ font-size:15px; color:#6b6880; max-width:420px; margin:0 0 24px; font-weight:600; }
+  .visual{ width:100%; max-width:400px; height:190px; position:relative; margin-bottom:16px; }
+
+  /* slide 1 */
+  .bars{ display:flex; align-items:flex-end; justify-content:center; gap:10px; height:150px; padding-top:10px; }
+  .bar{ width:26px; border-radius:8px 8px 4px 4px; background:linear-gradient(180deg, var(--china), var(--urgency-dark)); animation:grow 1.4s cubic-bezier(.34,1.56,.64,1) forwards; transform-origin:bottom; }
+  .bar:nth-child(1){ height:40px; animation-delay:.05s; }
+  .bar:nth-child(2){ height:65px; animation-delay:.2s; }
+  .bar:nth-child(3){ height:90px; animation-delay:.35s; }
+  .bar:nth-child(4){ height:120px; animation-delay:.5s; }
+  .bar:nth-child(5){ height:150px; animation-delay:.65s; }
+  @keyframes grow{ from{ transform:scaleY(0); opacity:0; } to{ transform:scaleY(1); opacity:1; } }
+  .boat{ position:absolute; bottom:0; left:-40px; width:34px; height:18px; animation:sail 3.4s linear infinite; }
+  .boat .hull{ position:absolute; bottom:0; width:34px; height:10px; background:var(--ink); border-radius:0 0 14px 14px; }
+  .boat .sail{ position:absolute; bottom:9px; left:14px; width:0; height:0; border-left:2px solid var(--ink); border-bottom:16px solid transparent; }
+  .boat .sail::after{ content:''; position:absolute; left:2px; top:0; width:0; height:0; border-left:12px solid var(--eu); border-top:16px solid transparent; }
+  @keyframes sail{ 0%{ left:-40px; } 100%{ left:105%; } }
+
+  /* slide 2: gear + container (kept) */
+  .friction-stage{ position:relative; height:170px; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .icon-group{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .icon-caption{ font-family:'Nunito'; font-weight:800; font-size:11px; letter-spacing:.04em; text-transform:uppercase; color:#9c98ab; }
+  .gear-wrap{ position:relative; width:104px; height:104px; display:flex; align-items:center; justify-content:center; animation:gearSpin 7s linear infinite, glowPulseEU 1.1s ease-in-out infinite alternate; filter:drop-shadow(0 8px 14px rgba(0,0,0,.12)); flex-shrink:0; }
+  @keyframes gearSpin{ to{ transform:rotate(360deg); } }
+  @keyframes glowPulseEU{ from{ filter:drop-shadow(0 8px 14px rgba(46,196,182,.15));} to{ filter:drop-shadow(0 8px 22px rgba(46,196,182,.5));} }
+  .gear-body{ width:64px; height:64px; border-radius:50%; background:var(--eu); position:relative; display:flex; align-items:center; justify-content:center; }
+  .gear-bolt{ width:16px; height:16px; border-radius:50%; background:rgba(255,255,255,.9); }
+  .tooth{ position:absolute; top:50%; left:50%; width:13px; height:20px; background:var(--eu); border-radius:3px; margin:-10px 0 0 -6.5px; transform-origin:6.5px 42px; }
+  .tooth.t0{ transform:rotate(0deg) translateY(-42px); } .tooth.t1{ transform:rotate(45deg) translateY(-42px); }
+  .tooth.t2{ transform:rotate(90deg) translateY(-42px); } .tooth.t3{ transform:rotate(135deg) translateY(-42px); }
+  .tooth.t4{ transform:rotate(180deg) translateY(-42px); } .tooth.t5{ transform:rotate(225deg) translateY(-42px); }
+  .tooth.t6{ transform:rotate(270deg) translateY(-42px); } .tooth.t7{ transform:rotate(315deg) translateY(-42px); }
+
+  .container-wrap{ width:88px; height:60px; position:relative; animation:rock 1.1s ease-in-out infinite alternate, glowPulseCN 1.1s ease-in-out infinite alternate; filter:drop-shadow(0 8px 14px rgba(0,0,0,.12)); flex-shrink:0; }
+  @keyframes rock{ from{ transform:rotate(-3deg) translateY(0);} to{ transform:rotate(3deg) translateY(-3px);} }
+  @keyframes glowPulseCN{ from{ filter:drop-shadow(0 8px 14px rgba(255,107,91,.15));} to{ filter:drop-shadow(0 8px 22px rgba(255,107,91,.5));} }
+  .container-body{ position:absolute; inset:0; background:linear-gradient(180deg, var(--china), var(--urgency-dark)); border-radius:6px; overflow:hidden; border:2px solid rgba(0,0,0,.08); }
+  .container-body::before{ content:''; position:absolute; inset:0; background:repeating-linear-gradient(90deg, rgba(255,255,255,.16) 0 3px, transparent 3px 11px); }
+  .container-door{ position:absolute; top:8px; bottom:8px; left:50%; width:2px; background:rgba(255,255,255,.55); transform:translateX(-50%); }
+  .container-handle{ position:absolute; top:50%; width:4px; height:4px; border-radius:50%; background:rgba(255,255,255,.7); margin-top:-2px; }
+  .container-handle.h1{ left:calc(50% - 6px); } .container-handle.h2{ left:calc(50% + 3px); }
+
+  .spark2{ position:absolute; width:3px; height:16px; background:var(--timing); border-radius:2px; top:40%; animation:zap .45s steps(2) infinite; z-index:2;}
+  .spark2.z1{ left:47%; transform:rotate(12deg); animation-delay:0s; }
+  .spark2.z2{ left:51%; top:30%; transform:rotate(-18deg); animation-delay:.15s; }
+  .spark2.z3{ left:49%; top:55%; transform:rotate(20deg); animation-delay:.3s; }
+  @keyframes zap{ 0%,100%{ opacity:1; } 50%{ opacity:.15; } }
+
+  /* slide 3: two BIG hourglass balloons only */
+  .squeeze-stage{ position:relative; height:190px; display:flex; align-items:center; justify-content:center; }
+  .balloon-pair{ display:flex; align-items:center; gap:20px; }
+  .hourglass{ position:relative; width:56px; height:92px; }
+  .hg-top, .hg-bottom{ position:absolute; left:6px; width:44px; height:40px; border-radius:50%; box-shadow:0 8px 16px rgba(0,0,0,.15); background:linear-gradient(135deg, var(--blight), var(--bmain)); }
+  .hg-top{ top:0; animation:lobeUp 1.15s cubic-bezier(.36,.07,.19,.97) infinite; }
+  .hg-bottom{ bottom:0; animation:lobeDown 1.15s cubic-bezier(.36,.07,.19,.97) infinite; }
+  .hg-waist{ position:absolute; top:34px; left:50%; height:20px; border-radius:6px; transform:translateX(-50%); background:linear-gradient(135deg, var(--blight), var(--bmain)); animation:waistPinch 1.15s cubic-bezier(.36,.07,.19,.97) infinite; }
+  .hourglass.b-two .hg-top, .hourglass.b-two .hg-bottom, .hourglass.b-two .hg-waist{ animation-delay:.15s; }
+  .hg-shine{ position:absolute; top:8px; left:12px; width:13px; height:19px; border-radius:50%; background:rgba(255,255,255,.7); transform:rotate(-18deg); z-index:2; }
+  .hg-knot{ position:absolute; bottom:-7px; left:50%; width:0; height:0; margin-left:-6px; border-left:6px solid transparent; border-right:6px solid transparent; border-top:9px solid var(--bmain); }
+  .hourglass.b-one{ --bmain:var(--gold); --blight:#FFEDA8; }
+  .hourglass.b-two{ --bmain:var(--timing); --blight:#FFD9A0; }
+  @keyframes lobeUp{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-9px);} }
+  @keyframes lobeDown{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(9px);} }
+  @keyframes waistPinch{
+    0%,100%{ width:40px; height:20px; top:34px; }
+    45%{ width:12px; height:30px; top:29px; }
+    50%{ width:6px; height:33px; top:27.5px; }
+    55%{ width:12px; height:30px; top:29px; }
+  }
+  .air-line{ position:absolute; top:28px; width:2px; height:11px; background:var(--teamA); border-radius:2px; opacity:0; z-index:3; }
+  .air-line.a1{ left:16px; animation:airEscape 1.15s ease-in-out infinite; }
+  .air-line.a2{ left:34px; animation:airEscape 1.15s ease-in-out infinite .1s; }
+  @keyframes airEscape{ 0%,40%{ opacity:0; transform:translateY(0) rotate(0deg);} 50%{ opacity:.85; transform:translateY(-8px) rotate(8deg);} 62%{ opacity:0; transform:translateY(-16px) rotate(-6deg);} 100%{ opacity:0; } }
+  .pop-ring{ position:absolute; top:36px; left:50%; width:12px; height:12px; margin-left:-6px; border-radius:50%; border:2px solid var(--gold); opacity:0; pointer-events:none; animation:popRing 1.15s ease-in-out infinite; z-index:3; }
+  @keyframes popRing{ 0%,42%{ opacity:0; transform:scale(.3);} 50%{ opacity:.9; transform:scale(1.8);} 64%,100%{ opacity:0; transform:scale(2.4);} }
+
+  .controls{ display:flex; align-items:center; gap:16px; margin-top:8px; }
+  .dots{ display:flex; gap:6px; }
+  .dot{ width:7px;height:7px;border-radius:50%; background:#e4dfd2; transition:.2s; }
+  .dot.on{ background:var(--teamA); width:20px; border-radius:4px; }
+
+  button.btn{ font-family:'Baloo 2'; font-weight:700; font-size:15px; color:#fff; background:var(--ink); border:none; padding:12px 26px; border-radius:999px; cursor:pointer; box-shadow:0 8px 0 rgba(38,36,58,.18); transition:transform .12s ease; }
+  button.btn:hover{ transform:translateY(-2px); }
+  button.btn:active{ transform:translateY(2px); box-shadow:0 4px 0 rgba(38,36,58,.18); }
+  button.btn.ghost{ background:transparent; color:#9c98ab; box-shadow:none; font-size:13px; padding:8px 10px; }
+
+  /* ===================== REBUILT CHARACTER ===================== */
+  .char-wrap{ position:absolute; width:32px; height:58px; }
+  .char2{ position:relative; width:100%; height:100%; }
+  .head2{ position:absolute; top:0; left:8px; width:14px; height:14px; border-radius:50%; background:var(--c); }
+  .head2 .eyes{ position:absolute; top:5px; left:3px; width:8px; height:2px; }
+  .head2 .eyes::before, .head2 .eyes::after{ content:''; position:absolute; top:0; width:1.8px; height:1.8px; border-radius:50%; background:rgba(255,255,255,.85); }
+  .head2 .eyes::before{ left:1px; } .head2 .eyes::after{ left:6px; }
+  .torso2{ position:absolute; top:13px; left:6px; width:18px; height:20px; background:var(--c); clip-path:polygon(8% 0%, 92% 0%, 78% 100%, 22% 100%); }
+
+  .arm-upper{ position:absolute; top:15px; width:3px; height:11px; border-radius:2px; background:var(--c); transform-origin:top center; }
+  .arm-upper.l{ left:1px; } .arm-upper.r{ left:28px; }
+  .arm-lower{ position:absolute; top:11px; left:0; width:3px; height:10px; border-radius:2px; background:var(--c); transform-origin:top center; }
+  .hand{ position:absolute; bottom:-3px; left:-1px; width:5px; height:5px; border-radius:50%; background:var(--c); }
+
+  .leg-upper{ position:absolute; top:32px; width:4px; height:12px; border-radius:2px; background:var(--c); transform-origin:top center; }
+  .leg-upper.l{ left:10px; } .leg-upper.r{ left:19px; }
+  .leg-lower{ position:absolute; top:12px; left:0; width:4px; height:12px; border-radius:2px; background:var(--c); transform-origin:top center; }
+  .foot{ position:absolute; bottom:-2px; left:-2px; width:8px; height:4px; border-radius:3px; background:var(--c); }
+
+  .team-a{ --c: var(--teamA); }
+  .team-b{ --c: var(--teamB); }
+
+  /* running */
+  @keyframes runLegL{ 0%,100%{ transform:rotate(35deg);} 50%{ transform:rotate(-35deg);} }
+  @keyframes runLegR{ 0%,100%{ transform:rotate(-35deg);} 50%{ transform:rotate(35deg);} }
+  @keyframes kneeBendL{ 0%,100%{ transform:rotate(10deg);} 50%{ transform:rotate(48deg);} }
+  @keyframes kneeBendR{ 0%,100%{ transform:rotate(48deg);} 50%{ transform:rotate(10deg);} }
+  @keyframes elbowSwing{ 0%,100%{ transform:rotate(18deg);} 50%{ transform:rotate(36deg);} }
+  @keyframes runBob{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-2px);} }
+  .char2.running .leg-upper.l{ animation:runLegL .28s linear infinite; }
+  .char2.running .leg-upper.r{ animation:runLegR .28s linear infinite; }
+  .char2.running .leg-lower.l{ animation:kneeBendL .28s linear infinite; }
+  .char2.running .leg-lower.r{ animation:kneeBendR .28s linear infinite; }
+  .char2.running .arm-upper.l{ animation:runLegR .28s linear infinite; }
+  .char2.running .arm-upper.r{ animation:runLegL .28s linear infinite; }
+  .char2.running .arm-lower.l, .char2.running .arm-lower.r{ animation:elbowSwing .28s linear infinite; }
+  .char2.running .head2, .char2.running .torso2{ animation:runBob .28s linear infinite; }
+  .pacer-path{ animation:paceLoop 1.7s ease-in-out infinite; }
+  @keyframes paceLoop{ 0%{ transform:translate(0,0) scaleX(1); } 24%{ transform:translate(26px,-4px) scaleX(1); } 25%{ transform:translate(26px,-4px) scaleX(-1); } 49%{ transform:translate(0,-8px) scaleX(-1); } 50%{ transform:translate(0,-8px) scaleX(1); } 74%{ transform:translate(26px,-4px) scaleX(1); } 75%{ transform:translate(26px,-4px) scaleX(-1); } 100%{ transform:translate(0,0) scaleX(-1); } }
+
+  /* talking pair, arms wave outward, never toward the body */
+  @keyframes waveUpperL{ 0%,100%{ transform:rotate(-10deg);} 50%{ transform:rotate(-55deg);} }
+  @keyframes waveUpperR{ 0%,100%{ transform:rotate(10deg);} 50%{ transform:rotate(55deg);} }
+  @keyframes waveLowerL{ 0%,100%{ transform:rotate(10deg);} 50%{ transform:rotate(30deg);} }
+  @keyframes waveLowerR{ 0%,100%{ transform:rotate(-10deg);} 50%{ transform:rotate(-30deg);} }
+  @keyframes nod{ 0%,100%{ transform:rotate(-4deg);} 50%{ transform:rotate(4deg);} }
+  .char2.talking .arm-upper.l{ animation:waveUpperL .5s ease-in-out infinite; }
+  .char2.talking .arm-upper.r{ animation:waveUpperR .5s ease-in-out infinite; }
+  .char2.talking .arm-lower.l{ animation:waveLowerL .5s ease-in-out infinite; }
+  .char2.talking .arm-lower.r{ animation:waveLowerR .5s ease-in-out infinite; }
+  .char2.talking .head2{ animation:nod .5s ease-in-out infinite; }
+  .char2.talking.talker2 .arm-upper.l, .char2.talking.talker2 .arm-upper.r,
+  .char2.talking.talker2 .arm-lower.l, .char2.talking.talker2 .arm-lower.r,
+  .char2.talking.talker2 .head2, .char2.talking.talker2 .bubble{ animation-delay:.25s; }
+  .bubble{ position:absolute; top:-20px; left:2px; background:#fff; border-radius:8px; padding:2px 6px; font-family:'Baloo 2'; font-weight:800; font-size:12px; color:var(--ink); box-shadow:0 4px 8px rgba(0,0,0,.12); animation:talkPulse 1s ease-in-out infinite; white-space:nowrap; z-index:4; }
+  .bubble::after{ content:''; position:absolute; bottom:-4px; left:10px; width:0;height:0; border:4px solid transparent; border-top-color:#fff; }
+  @keyframes talkPulse{ 0%,100%{ transform:scale(.85); opacity:.5; } 30%{ transform:scale(1.1); opacity:1; } 60%{ transform:scale(.92); opacity:.75; } }
+
+  /* rummaging */
+  @keyframes leanBob{ 0%,100%{ transform:translateY(0) rotate(-3deg);} 50%{ transform:translateY(3px) rotate(3deg);} }
+  @keyframes reachLow{ 0%,100%{ transform:rotate(-15deg);} 50%{ transform:rotate(-70deg);} }
+  @keyframes elbowReach{ 0%,100%{ transform:rotate(10deg);} 50%{ transform:rotate(55deg);} }
+  .char2.rummaging .torso2, .char2.rummaging .head2{ animation:leanBob .38s ease-in-out infinite; }
+  .char2.rummaging .arm-upper.l{ animation:reachLow .38s ease-in-out infinite; }
+  .char2.rummaging .arm-lower.l{ animation:elbowReach .38s ease-in-out infinite; }
+  .drawer-prop{ position:absolute; bottom:-2px; left:-18px; width:16px; height:10px; background:#fff; border:1.5px solid #e3dcc9; border-radius:2px; animation:drawerSlide .76s ease-in-out infinite; }
+  .drawer-prop::after{ content:''; position:absolute; top:3px; left:3px; right:3px; height:1.5px; background:#d8d2c2; }
+  @keyframes drawerSlide{ 0%,100%{ transform:translateX(0);} 50%{ transform:translateX(-7px);} }
+
+  /* clock watcher + pen leak */
+  .pocket-pen{ position:absolute; top:11px; left:11px; width:2px; height:8px; background:var(--ink); transform:rotate(14deg); border-radius:1px; }
+  .ink-stain{ position:absolute; top:16px; left:8px; width:6px; height:6px; background:#1B2A4A; border-radius:48% 52% 55% 45% / 50% 45% 55% 50%; opacity:0; animation:inkGrow 2.6s ease-in-out infinite; }
+  @keyframes inkGrow{ 0%{ transform:scale(.2); opacity:0;} 55%{ transform:scale(1); opacity:.8;} 100%{ transform:scale(1.15); opacity:.65;} }
+  .clock-prop{ position:absolute; top:-20px; left:6px; width:14px; height:14px; border-radius:50%; background:#fff; border:1.5px solid var(--ink); }
+  .clock-prop::after{ content:''; position:absolute; top:1px; left:6px; width:1.5px; height:5px; background:var(--ink); transform-origin:bottom center; animation:tickFast .5s steps(4) infinite; }
+  @keyframes tickFast{ to{ transform:rotate(360deg); } }
+  @keyframes footTapUpper{ 0%,100%{ transform:rotate(0deg);} 50%{ transform:rotate(10deg);} }
+  @keyframes footTapLower{ 0%,100%{ transform:rotate(0deg);} 50%{ transform:rotate(22deg);} }
+  .char2.clockwatch .leg-upper.r{ animation:footTapUpper .28s ease-in-out infinite; }
+  .char2.clockwatch .leg-lower.r{ animation:footTapLower .28s ease-in-out infinite; }
+  @keyframes glanceHead{ 0%,100%{ transform:rotate(0deg);} 25%{ transform:rotate(-12deg);} 75%{ transform:rotate(12deg);} }
+  .char2.clockwatch .head2{ animation:glanceHead .7s ease-in-out infinite; }
+  @keyframes fidgetArm{ 0%,100%{ transform:rotate(-6deg);} 50%{ transform:rotate(6deg);} }
+  .char2.clockwatch .arm-upper.l{ animation:fidgetArm .5s ease-in-out infinite; }
+
+  /* searching */
+  @keyframes searchBob{ 0%,100%{ transform:translateY(0) rotate(0deg);} 50%{ transform:translateY(4px) rotate(-6deg);} }
+  @keyframes reachDown{ 0%,100%{ transform:rotate(20deg);} 50%{ transform:rotate(65deg);} }
+  .char2.searching .torso2, .char2.searching .head2{ animation:searchBob .4s ease-in-out infinite; }
+  .char2.searching .arm-upper.r{ animation:reachDown .4s ease-in-out infinite; }
+  .char2.searching .arm-lower.r{ animation:elbowReach .4s ease-in-out infinite; }
+  .paper-prop{ position:absolute; bottom:2px; right:-12px; width:12px; height:15px; background:#fff; border-radius:2px; box-shadow:0 2px 5px rgba(0,0,0,.18); animation:paperFlutter .8s ease-in-out infinite; }
+  .paper-prop::before, .paper-prop::after{ content:''; position:absolute; left:2px; right:2px; height:1.4px; background:#d8d2c2; }
+  .paper-prop::before{ top:4px; } .paper-prop::after{ top:8px; }
+  @keyframes paperFlutter{ 0%,100%{ transform:translateY(0) rotate(-4deg); } 50%{ transform:translateY(-6px) rotate(8deg); } }
+  .paper-prop2{ position:absolute; bottom:8px; right:-20px; width:10px; height:13px; background:#fff; border-radius:2px; box-shadow:0 2px 5px rgba(0,0,0,.15); animation:paperFlutter .8s ease-in-out infinite .3s; opacity:.85; }
+
+  /* phone caller + coffee spill */
+  .side-step{ animation:sideStep 1s ease-in-out infinite; }
+  @keyframes sideStep{ 0%,100%{ transform:translateX(0);} 50%{ transform:translateX(12px);} }
+  @keyframes phoneUpper{ 0%,100%{ transform:rotate(-75deg);} 50%{ transform:rotate(-68deg);} }
+  @keyframes phoneLower{ 0%,100%{ transform:rotate(-95deg);} 50%{ transform:rotate(-86deg);} }
+  .char2.oncall .arm-upper.r{ animation:phoneUpper .22s ease-in-out infinite; }
+  .char2.oncall .arm-lower.r{ animation:phoneLower .22s ease-in-out infinite; }
+  @keyframes gestureArm{ 0%,100%{ transform:rotate(-10deg);} 50%{ transform:rotate(-45deg);} }
+  .char2.oncall .arm-upper.l{ animation:gestureArm .55s ease-in-out infinite; }
+  .char2.oncall .arm-lower.l{ animation:elbowSwing .55s ease-in-out infinite; }
+  .phone-prop{ position:absolute; top:0px; left:24px; width:6px; height:10px; background:var(--ink); border-radius:2px; }
+  .coffee-cup{ position:absolute; bottom:0; left:-14px; width:7px; height:6px; background:#fff; border:1px solid #d8d2c2; border-radius:1px 3px 3px 1px; transform:rotate(75deg); }
+  .coffee-puddle{ position:absolute; bottom:-3px; left:-21px; width:17px; height:6px; background:#B08050; border-radius:50%; opacity:.5; animation:puddleGrow 2.2s ease-in-out infinite; }
+  @keyframes puddleGrow{ 0%,100%{ transform:scaleX(1);} 50%{ transform:scaleX(1.18);} }
+
+  /* stacking */
+  .blocks-prop{ position:absolute; bottom:0; left:-20px; width:16px; height:20px; }
+  .block{ width:12px; height:6px; border-radius:1px; position:absolute; left:0; background:var(--gold); }
+  .block.b1{ bottom:0; }
+  .block.b2{ bottom:6px; animation:wobble1 1.3s ease-in-out infinite; background:var(--timing); }
+  .block.b3{ bottom:12px; animation:wobble2 1.3s ease-in-out infinite; background:var(--urgency); }
+  @keyframes wobble1{ 0%,65%{ transform:rotate(0deg);} 80%{ transform:rotate(14deg) translateX(2px);} 100%{ transform:rotate(0deg);} }
+  @keyframes wobble2{ 0%,55%{ transform:rotate(0deg) translateY(0);} 72%{ transform:rotate(-26deg) translateX(-4px) translateY(2px);} 88%{ transform:rotate(0deg) translateY(0);} 100%{ transform:rotate(0deg);} }
+  @keyframes placeArmUpper{ 0%{ transform:rotate(8deg);} 100%{ transform:rotate(55deg);} }
+  .char2.stacking .arm-upper.l{ animation:placeArmUpper .6s ease-in-out infinite alternate; }
+  .char2.stacking .arm-upper.r{ animation:placeArmUpper .6s ease-in-out infinite alternate-reverse; }
+  .char2.stacking .arm-lower.l, .char2.stacking .arm-lower.r{ animation:elbowSwing .6s ease-in-out infinite alternate; }
+  .char2.stacking .torso2, .char2.stacking .head2{ animation:leanBob .5s ease-in-out infinite; }
+
+  /* celebration */
+  .char2.celebrate .arm-upper.l{ animation:none !important; transform:rotate(-140deg) !important; transition:transform .25s ease; }
+  .char2.celebrate .arm-upper.r{ animation:none !important; transform:rotate(140deg) !important; transition:transform .25s ease; }
+  .char2.celebrate .arm-lower.l{ animation:none !important; transform:rotate(-18deg) !important; transition:transform .25s ease; }
+  .char2.celebrate .arm-lower.r{ animation:none !important; transform:rotate(18deg) !important; transition:transform .25s ease; }
+  .char2.celebrate .head2, .char2.celebrate .torso2{ animation:hop .38s ease-in-out infinite !important; }
+  @keyframes hop{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-7px);} }
+
+  /* ===================== TABLE SCENE ===================== */
+  .table-scene{ position:relative; width:100%; max-width:460px; height:300px; margin:0 auto 8px; }
+  .sign-rope{ position:absolute; top:0; left:50%; width:2px; height:30px; background:#cdc3ae; transform:translateX(-50%); z-index:2; }
+  .sign-swing{ position:absolute; top:30px; left:50%; transform-origin:top center; animation:signSwing 2.3s ease-in-out infinite; z-index:2; }
+  .sign-swing.landed{ animation:none; transform:rotate(0deg); }
+  #sign-scale{ transition:transform .4s cubic-bezier(.34,1.56,.64,1); }
+  .sign-box{ position:relative; left:-50%; background:var(--urgency); color:#fff; font-family:'Baloo 2'; font-weight:800; font-size:13px; padding:8px 14px; border-radius:8px; box-shadow:0 8px 16px rgba(0,0,0,.18); white-space:nowrap; }
+  .sign-box.shake{ animation:signShake .35s ease; }
+  .sign-box.crack{ animation:crackOpen .5s ease forwards; }
+  @keyframes signSwing{ 0%,100%{ transform:rotate(-8deg);} 50%{ transform:rotate(8deg);} }
+  @keyframes signShake{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-4px);} 75%{ transform:translateX(4px);} }
+  @keyframes crackOpen{ 0%{ transform:scale(1); opacity:1;} 40%{ transform:scale(1.3); opacity:1;} 100%{ transform:scale(.15); opacity:0;} }
+
+  .table-ellipse{ position:absolute; top:112px; left:50%; transform:translateX(-50%); width:320px; height:130px; border-radius:50%; background:linear-gradient(180deg,#C9915A,#A9723F); box-shadow:0 14px 24px rgba(0,0,0,.18); }
+  .table-ellipse::before{ content:''; position:absolute; inset:9px; border-radius:50%; background:linear-gradient(180deg,#D9A56C,#B98552); opacity:.6; }
+
+  .seat{ position:absolute; width:32px; height:44px; z-index:3; }
+  .seat1{ left:50%; top:56px; transform:translateX(-50%); }
+  .seat2{ left:74%; top:96px; }
+  .seat3{ left:74%; top:172px; }
+  .seat4{ left:50%; top:212px; transform:translateX(-50%); }
+  .seat5{ left:16%; top:172px; }
+  .seat6{ left:16%; top:96px; }
+
+  .lp1{ position:absolute; top:96px; left:150px; animation:floatA 3.4s ease-in-out infinite; }
+  .lp2{ position:absolute; top:118px; left:270px; animation:floatB 3.8s ease-in-out infinite .3s; }
+  .lp3{ position:absolute; top:190px; left:130px; animation:floatA 3.6s ease-in-out infinite .5s; }
+  .lp4{ position:absolute; top:184px; left:290px; animation:floatB 3.2s ease-in-out infinite .15s; }
+
+  #flyer{ position:absolute; width:44px; height:44px; border-radius:50%; display:none; align-items:center; justify-content:center; font-size:22px; box-shadow:0 10px 20px rgba(0,0,0,.25); z-index:60; }
+
+  .hero-card.disabled{ opacity:.32; filter:grayscale(1); pointer-events:none; }
+
+  .confetti-piece2{ position:absolute; border-radius:2px; animation-name:confettiBurst; animation-timing-function:cubic-bezier(.2,.6,.3,1); animation-fill-mode:forwards; }
+  @keyframes confettiBurst{ 0%{ transform:translate(0,0) rotate(0deg); opacity:1;} 70%{ opacity:1;} 100%{ transform:translate(var(--dx), calc(var(--dy) + 200px)) rotate(var(--rot)); opacity:0;} }
+
+  /* ===================== ROUND 3: ping pong across the rulebook ===================== */
+  .pingpong-stage{ position:relative; width:100%; max-width:460px; height:230px; margin:10px auto 8px; }
+
+  .pp-table{ position:absolute; bottom:44px; left:70px; right:70px; height:14px; background:linear-gradient(180deg,#3AA07C,#2E8B6E); border-radius:4px; box-shadow:0 8px 0 0 #1F6B52, 0 16px 18px rgba(0,0,0,.18); }
+  .pp-table::before{ content:''; position:absolute; top:50%; left:4%; right:4%; height:1.5px; background:rgba(255,255,255,.55); }
+  .pp-leg{ position:absolute; bottom:20px; width:6px; height:24px; background:#b9b3a4; border-radius:2px; }
+  .pp-leg.l{ left:92px; }
+  .pp-leg.r{ right:92px; }
+
+  .pp-net{ position:absolute; bottom:58px; left:50%; width:28px; height:64px; transform:translateX(-50%); }
+  .pp-net-body{ position:absolute; inset:0; background:linear-gradient(90deg,#F5C878,#E8B25E); border-radius:3px; box-shadow:0 6px 12px rgba(0,0,0,.18); transition:transform .25s ease; }
+  .pp-net-spine{ position:absolute; top:6px; bottom:6px; left:50%; width:3px; background:#D68F26; opacity:.75; transform:translateX(-50%); }
+  .pp-net.wobble .pp-net-body{ animation:netWobble .18s ease-in-out 4; }
+  @keyframes netWobble{ 0%,100%{ transform:rotate(0deg);} 50%{ transform:rotate(6deg);} }
+  .pp-net.open .pp-net-left{ transform:translateX(-15px) rotate(-25deg); }
+  .pp-net.open .pp-net-right{ transform:translateX(15px) rotate(25deg); }
+  .pp-net-left, .pp-net-right{ position:absolute; top:0; bottom:0; width:14px; background:linear-gradient(90deg,#F5C878,#E8B25E); box-shadow:0 6px 12px rgba(0,0,0,.15); transition:transform .5s cubic-bezier(.3,.7,.3,1); }
+  .pp-net-left{ left:0; border-radius:3px 0 0 3px; }
+  .pp-net-right{ right:0; border-radius:0 3px 3px 0; }
+
+  .pp-sign{ position:absolute; bottom:126px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg,#fffdf7,#fdf0d5); border-radius:50px/22px; padding:7px 22px; font-family:'Baloo 2'; font-weight:800; font-size:10px; color:#8a5a1a; white-space:nowrap; box-shadow:0 6px 14px rgba(0,0,0,.18), 0 0 0 2px #E8B25E inset; z-index:5; }
+  .pp-sign::before, .pp-sign::after{ content:''; position:absolute; top:50%; width:0; height:0; border-style:solid; transform:translateY(-50%); }
+  .pp-sign::before{ left:-9px; border-width:7px 9px 7px 0; border-color:transparent #E8B25E transparent transparent; }
+  .pp-sign::after{ right:-9px; border-width:7px 0 7px 9px; border-color:transparent transparent transparent #E8B25E; }
+  .pp-crown{ position:absolute; top:-16px; left:50%; transform:translateX(-50%); width:26px; height:14px; background:var(--gold); clip-path:polygon(0% 100%, 10% 20%, 25% 55%, 50% 5%, 75% 55%, 90% 20%, 100% 100%); box-shadow:0 3px 5px rgba(0,0,0,.2); }
+  .pp-crown::before, .pp-crown::after{ content:''; position:absolute; bottom:2px; width:3px; height:3px; border-radius:50%; background:#fff3cf; }
+  .pp-crown::before{ left:6px; } .pp-crown::after{ right:6px; }
+  .pp-sparkle{ position:absolute; font-size:11px; color:var(--gold); animation:twinkle 1.4s ease-in-out infinite; }
+  .pp-sparkle.sp1{ top:-6px; left:-16px; animation-delay:0s; }
+  .pp-sparkle.sp2{ top:2px; right:-18px; animation-delay:.5s; }
+  .pp-sparkle.sp3{ bottom:-10px; left:20%; animation-delay:.9s; font-size:9px; }
+
+  .pp-player{ position:absolute; bottom:20px; width:32px; height:58px; }
+  .pp-player.left{ left:14px; }
+  .pp-player.right{ right:14px; }
+  .pp-player-inner{ width:100%; height:100%; transform:scale(1.5); transform-origin:bottom center; }
+  .pp-player.right .pp-player-inner{ transform:scale(1.5) scaleX(-1); }
+  .pp-player .char2 .arm-upper.r{ transition:transform .12s ease; }
+  .pp-player.swinging .char2 .arm-upper.r{ transform:rotate(-90deg); }
+
+  .pp-player .head2{ position:relative; }
+  .pp-player .head2::after{ content:''; position:absolute; top:3px; left:-2px; right:-2px; height:5px; background:#fff; border-radius:2px; box-shadow:0 1px 2px rgba(0,0,0,.12); }
+  .pp-player.left .head2::after{ background:linear-gradient(90deg,#fff 70%, var(--urgency) 70%); }
+  .pp-player.right .head2::after{ background:linear-gradient(90deg,#fff 70%, var(--timing) 70%); }
+  .pp-paddle{ position:absolute; bottom:-5px; left:-2px; width:9px; height:11px; border-radius:50% 50% 45% 45%; background:#D8453A; border:1.5px solid #7a241c; }
+  .pp-paddle::after{ content:''; position:absolute; bottom:-5px; left:50%; width:2px; height:6px; background:#B98552; transform:translateX(-50%); border-radius:1px; }
+  .pp-you-tag{ position:absolute; top:-56px; left:50%; transform:translateX(-50%); font-family:'Baloo 2'; font-weight:800; font-size:11px; color:var(--trust-dark); background:#fff; padding:2px 8px; border-radius:8px; box-shadow:0 3px 6px rgba(0,0,0,.12); white-space:nowrap; z-index:6; }
+  .pp-scoreboard{ display:flex; align-items:center; justify-content:center; gap:14px; background:var(--ink); border-radius:14px; padding:10px 26px; margin:0 auto 14px; width:fit-content; box-shadow:0 8px 16px rgba(0,0,0,.18); }
+  .pp-sb-num{ font-family:'Baloo 2'; font-weight:800; font-size:26px; color:var(--gold); min-width:28px; text-align:center; display:inline-block; transition:transform .2s cubic-bezier(.34,1.56,.64,1); }
+  .pp-sb-num.bump{ transform:scale(1.3); }
+  .pp-sb-label{ font-family:'Baloo 2'; font-weight:700; font-size:11px; color:var(--paper); text-transform:uppercase; letter-spacing:.06em; }
+  .pp-sb-dash{ font-family:'Baloo 2'; font-weight:800; font-size:20px; color:var(--paper); opacity:.5; }
+  .pp-score.bump{ transform:translateX(-50%) scale(1.25); }
+
+  .hit-btn:disabled{ opacity:.6; cursor:not-allowed; }
+
+  .pp-ball{ position:absolute; bottom:135px; left:50%; width:10px; height:10px; border-radius:50%; background:var(--gold); box-shadow:0 4px 8px rgba(0,0,0,.2); transition:left linear; z-index:4; }
+  @keyframes ballArc{ 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-46px);} }
+  @keyframes ballFlash{ 0%,100%{ box-shadow:0 4px 8px rgba(0,0,0,.2);} 40%{ box-shadow:0 0 14px 6px rgba(255,210,63,.75);} }
+  @keyframes ballRoll{ from{ transform:rotate(0deg);} to{ transform:rotate(900deg);} }
+
+  .hit-btn.too-early{ animation:shake .3s; }
+
+  .side-pick{ display:flex; gap:14px; justify-content:center; margin-top:4px; }
+  .side-card{ background:var(--paper); border:2px solid #eee4d0; border-radius:16px; padding:12px 18px; cursor:pointer; font-family:'Baloo 2'; font-weight:700; font-size:14px; color:var(--ink); transition:transform .15s ease, border-color .15s ease; }
+  .side-card:hover{ transform:translateY(-3px); border-color:var(--trust); }
+
+  .hit-btn{ font-family:'Baloo 2'; font-weight:800; font-size:16px; color:#fff; background:#c9c4b6; border:none; padding:13px 34px; border-radius:999px; cursor:pointer; box-shadow:0 8px 0 rgba(38,36,58,.14); transition:transform .1s ease, background .15s ease; }
+  .hit-btn.active{ background:var(--urgency); animation:hitPulse .35s ease-in-out infinite; }
+  @keyframes hitPulse{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.06);} }
+  .hit-btn:active{ transform:translateY(3px); }
+
+  #scene-hero .headline{ max-width:520px; }
+
+  /* ===================== ROUND 4: two skiers, same finish ===================== */
+  .lanes-stage{ width:100%; max-width:460px; margin:10px auto 8px; display:flex; flex-direction:column; gap:10px; }
+  .lane{ position:relative; height:118px; border-radius:8px; overflow:hidden; }
+  .lane.gate-lane{ background:linear-gradient(180deg,#eaf3fb,#d9ecf7); }
+  .lane.slope-lane{ background:linear-gradient(180deg,#f3f9fd,#e3f0fa); }
+  .wave-trail{ position:absolute; inset:0; width:100%; height:100%; }
+  .wave-trail path{ fill:none; stroke:#b9d8ee; stroke-width:2; stroke-dasharray:6 6; }
+
+  .gate{ position:absolute; top:0; width:8px; height:34px; margin-left:-4px; border-radius:3px; background:rgba(255,255,255,.75); border:2px dashed #8fb8d9; }
+  .gate::before, .gate::after{ content:''; position:absolute; top:-6px; bottom:-6px; width:3px; border-radius:2px; }
+  .gate::before{ left:-3px; background:var(--urgency); }
+  .gate::after{ right:-3px; background:var(--trust); }
+  .gate .gn{ position:absolute; top:-18px; left:50%; transform:translateX(-50%); font-family:'Baloo 2'; font-weight:800; font-size:10px; color:#4a7ba8; }
+  .gate.armed{ background:#fff7d8; border-color:var(--gold); animation:gateArmed .4s ease-in-out infinite; }
+  @keyframes gateArmed{ 0%,100%{ transform:scale(1);} 50%{ transform:scale(1.18);} }
+  .gate.done{ background:#dff3ea; border-color:var(--trust); }
+  .gate.missed{ background:#fbe4e0; border-color:var(--urgency); }
+
+  .lane-goal{ position:absolute; right:4px; top:50%; transform:translateY(-50%); font-size:22px; z-index:5; }
+  .lane-runner{ position:absolute; left:0; top:50%; width:22px; height:40px; }
+  .lane-runner .char2.mini{ transform:scale(1.05); transform-origin:bottom center; }
+  .lane-runner.carve .char2.mini{ animation:carveLean .4s ease-in-out infinite; }
+  @keyframes carveLean{ 0%,100%{ transform:scale(1.05) rotate(-6deg);} 50%{ transform:scale(1.05) rotate(6deg);} }
+  .lane-runner.gate-hit .char2.mini{ animation:gateCarve .25s ease-out; }
+  @keyframes gateCarve{ 0%,100%{ transform:scale(1.05) rotate(0deg);} 50%{ transform:scale(1.15) rotate(-12deg);} }
+  .lane-runner.face-back{ transform:scaleX(-1); }
+  #hopper.shaking .arm-upper.r{ animation:handshakeBumpR .3s ease-in-out 2; }
+  #walker.shaking .arm-upper.l{ animation:handshakeBumpL .3s ease-in-out 2; }
+  @keyframes handshakeBumpR{ 0%,100%{ transform:rotate(20deg);} 50%{ transform:rotate(-25deg);} }
+  @keyframes handshakeBumpL{ 0%,100%{ transform:rotate(-20deg);} 50%{ transform:rotate(25deg);} }
+
+  #gate-hit-btn.active{ background:var(--gold); animation:hitPulse .3s ease-in-out infinite; }
+
+  .countdown-sign{ margin:0 auto 12px; width:fit-content; background:linear-gradient(135deg,#fffdf7,#fdf0d5); border-radius:50px/22px; padding:8px 24px; font-family:'Baloo 2'; font-weight:800; font-size:24px; color:#8a5a1a; box-shadow:0 6px 14px rgba(0,0,0,.18), 0 0 0 2px #E8B25E inset; position:relative; }
+  .countdown-sign::before, .countdown-sign::after{ content:''; position:absolute; top:50%; width:0; height:0; border-style:solid; transform:translateY(-50%); }
+  .countdown-sign::before{ left:-9px; border-width:8px 9px 8px 0; border-color:transparent #E8B25E transparent transparent; }
+  .countdown-sign::after{ right:-9px; border-width:8px 0 8px 9px; border-color:transparent transparent transparent #E8B25E; }
+
+  .medal{ position:absolute; top:-18px; left:50%; transform:translateX(-50%) scale(0); width:16px; height:18px; transition:transform .4s cubic-bezier(.34,1.56,.64,1); z-index:6; }
+  .medal.show{ transform:translateX(-50%) scale(1); }
+  .medal .cup{ position:absolute; top:0; left:2px; width:12px; height:9px; background:linear-gradient(135deg,#fff2b0,var(--gold)); border:1.5px solid #D68F26; border-radius:0 0 4px 4px; clip-path:polygon(8% 0%, 92% 0%, 100% 70%, 78% 100%, 22% 100%, 0% 70%); }
+  .medal .handle{ position:absolute; top:1px; width:4px; height:5px; border:1.5px solid #D68F26; border-radius:50%; background:transparent; }
+  .medal .handle.l{ left:-3px; border-right:none; }
+  .medal .handle.r{ right:-3px; border-left:none; }
+  .medal .stem{ position:absolute; top:9px; left:7px; width:2px; height:4px; background:#D68F26; }
+  .medal .base{ position:absolute; top:13px; left:4px; width:8px; height:3px; background:#D68F26; border-radius:2px; }
+
+  .calm-reveal{ max-width:420px; margin:12px auto 0; text-align:center; opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity 1s ease, transform 1s ease; }
+  .calm-reveal.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .calm-reveal .rhyme{ margin-bottom:16px; }
+
+  /* ===================== ROUND 5: tug of war ===================== */
+  .tug-stage{ position:relative; width:100%; max-width:460px; height:190px; margin:10px auto 8px; }
+  .tug-ground{ position:absolute; bottom:18px; left:0; right:0; height:4px; background:#cfc9bd; border-radius:2px; }
+  .tug-rope{ position:absolute; bottom:52px; left:70px; right:70px; height:6px; background:linear-gradient(90deg,#c9a15a,#a97f3f); border-radius:3px; transform-origin:center; transition:transform .15s ease-out; }
+  .tug-rope.snapped{ opacity:0; }
+  .tug-rope-half{ position:absolute; bottom:52px; width:70px; height:6px; background:linear-gradient(90deg,#c9a15a,#a97f3f); border-radius:3px; opacity:0; }
+  .tug-rope-half.fly{ animation:ropeFly .5s ease-in forwards; }
+  .tug-rope-half.left{ left:70px; }
+  .tug-rope-half.right{ right:70px; }
+  @keyframes ropeFly{ 0%{ opacity:1; transform:translateX(0) rotate(0deg);} 100%{ opacity:0; transform:translateX(var(--flydir,-40px)) rotate(-30deg);} }
+  .tug-team{ position:absolute; bottom:18px; display:flex; }
+  .tug-team.old{ left:20px; }
+  .tug-team.young{ right:20px; }
+  .tug-runner{ width:26px; height:48px; position:relative; transition:transform .15s ease-out; }
+  .tug-runner .char2.mini{ transform:scale(1.15); transform-origin:bottom center; }
+  .tug-team.old .tug-runner{ transform:scaleX(-1); }
+  .tug-team.old .tug-runner.lean{ transform:scaleX(-1) rotate(-14deg); }
+  .tug-team.young .tug-runner.lean{ transform:rotate(-14deg); }
+  .tug-team.old .tug-runner.strain{ transform:scaleX(-1) rotate(11deg); }
+  .tug-team.young .tug-runner.strain{ transform:rotate(11deg); }
+  .tug-team.old .tug-runner.fallen{ transform:scaleX(-1) rotate(70deg) translateY(6px); }
+  .tug-team.young .tug-runner.fallen{ transform:rotate(70deg) translateY(6px); }
+
+  .tug-meter{ width:100%; max-width:300px; height:16px; background:#eee4d0; border-radius:8px; margin:0 auto 12px; overflow:hidden; box-shadow:inset 0 2px 4px rgba(0,0,0,.1); }
+  .tug-meter-fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--urgency),var(--gold)); transition:width .12s ease-out; }
+  #tug-pull-btn{ margin-bottom:6px; }
+
+  /* ===================== FINISH: everybody wins ===================== */
+  .finish-stage{ position:relative; display:flex; flex-direction:column; align-items:center; margin:14px 0 18px; }
+  .big-trophy{ position:relative; width:90px; height:110px; margin-bottom:10px; }
+  .bt-cup{ position:absolute; top:0; left:13px; width:64px; height:52px; background:linear-gradient(135deg,#fff2b0,var(--gold)); border:3px solid #D68F26; border-radius:0 0 20px 20px; clip-path:polygon(6% 0%, 94% 0%, 100% 62%, 76% 100%, 24% 100%, 0% 62%); box-shadow:0 8px 16px rgba(0,0,0,.18); }
+  .bt-shine{ position:absolute; top:8px; left:14px; width:12px; height:26px; border-radius:50%; background:rgba(255,255,255,.6); transform:rotate(-18deg); }
+  .bt-handle{ position:absolute; top:8px; width:16px; height:26px; border:4px solid #D68F26; border-radius:50%; background:transparent; }
+  .bt-handle.l{ left:-10px; border-right:none; }
+  .bt-handle.r{ right:-10px; border-left:none; }
+  .bt-stem{ position:absolute; top:50px; left:41px; width:8px; height:20px; background:linear-gradient(180deg,#E8B25E,#D68F26); }
+  .bt-base{ position:absolute; top:68px; left:23px; width:44px; height:14px; background:linear-gradient(180deg,#D68F26,#B5761F); border-radius:4px; box-shadow:0 6px 10px rgba(0,0,0,.18); }
+  .finish-score{ font-family:'Baloo 2'; font-weight:800; font-size:26px; color:var(--ink); background:var(--paper); border:3px solid var(--gold); border-radius:16px; padding:6px 22px; box-shadow:0 6px 14px rgba(0,0,0,.1); }
+  .finish-poem{ max-width:420px; margin:0 auto 20px; }
+  .crowd-stage{ position:relative; width:100%; max-width:500px; height:156px; margin-bottom:6px; display:flex; justify-content:space-between; align-items:flex-end; padding:0 6px; }
+  .cluster{ position:relative; width:210px; height:146px; }
+
+  .float-paper{ position:absolute; top:-8px; width:11px; height:14px; background:#fff; border-radius:2px; box-shadow:0 2px 4px rgba(0,0,0,.15); opacity:.92; z-index:3; }
+  .float-paper::before{ content:''; position:absolute; top:4px; left:2px; right:2px; height:1.2px; background:#d8d2c2; }
+  .float-paper::after{ content:''; position:absolute; top:8px; left:2px; right:2px; height:1.2px; background:#d8d2c2; }
+  .fp1{ left:12%; animation:floatA 3.4s ease-in-out infinite; }
+  .fp2{ left:34%; top:-16px; animation:floatB 4s ease-in-out infinite .3s; }
+  .fp3{ left:58%; animation:floatA 3.8s ease-in-out infinite .6s; }
+  .fp4{ left:80%; top:-14px; animation:floatB 3.2s ease-in-out infinite .15s; }
+  @keyframes floatA{ 0%,100%{ transform:translate(0,0) rotate(-6deg);} 50%{ transform:translate(10px,8px) rotate(8deg);} }
+  @keyframes floatB{ 0%,100%{ transform:translate(0,0) rotate(6deg);} 50%{ transform:translate(-10px,6px) rotate(-8deg);} }
+
+  .heroes-row{ display:flex; gap:18px; margin-top:4px; flex-wrap:wrap; justify-content:center; }
+  .hero-card{ width:118px; background:var(--paper); border:2px solid #eee4d0; border-radius:18px; padding:14px 10px 12px; cursor:pointer; transition:transform .18s cubic-bezier(.34,1.56,.64,1), border-color .18s, box-shadow .18s; animation:flyIn .55s cubic-bezier(.2,.9,.3,1.2) both; }
+  .hero-card:nth-child(1){ animation-delay:.05s; }
+  .hero-card:nth-child(2){ animation-delay:.2s; }
+  .hero-card:nth-child(3){ animation-delay:.35s; }
+  @keyframes flyIn{ from{ opacity:0; transform:translateY(-60px) rotate(-8deg) scale(.7); } to{ opacity:1; transform:translateY(0) rotate(0) scale(1); } }
+  .hero-card:hover{ transform:translateY(-4px); box-shadow:0 10px 20px rgba(38,36,58,.12); }
+  .hero-card.wrong-shake{ animation:shake .4s; }
+  .hero-card.hint{ animation:hintPulse 1s ease-in-out infinite; }
+  @keyframes hintPulse{ 0%,100%{ box-shadow:0 0 0 3px var(--trust), 0 0 14px rgba(46,196,182,.4);} 50%{ box-shadow:0 0 0 4px var(--trust), 0 0 26px rgba(46,196,182,.7);} }
+  @keyframes shake{ 0%,100%{ transform:translateX(0); } 20%{ transform:translateX(-8px) rotate(-3deg); } 40%{ transform:translateX(8px) rotate(3deg); } 60%{ transform:translateX(-6px) rotate(-2deg); } 80%{ transform:translateX(6px) rotate(2deg); } }
+  .hero-blob{ width:56px;height:56px; border-radius:40% 60% 55% 45% / 50% 40% 60% 50%; margin:0 auto 8px; display:flex;align-items:center;justify-content:center; font-size:24px; box-shadow:0 8px 16px rgba(0,0,0,.1); }
+  .hero-blob.trust{ background:var(--trust); }
+  .hero-blob.timing{ background:var(--timing); }
+  .hero-blob.urgency{ background:var(--urgency); }
+  .hero-name{ font-family:'Baloo 2'; font-weight:700; font-size:14px; }
+  .hero-tag{ font-size:11px; color:#918d9f; font-weight:700; }
+  .toast{ margin-top:12px; font-weight:700; font-size:14px; color:var(--urgency-dark); opacity:0; transition:opacity .2s; min-height:20px; }
+  .toast.show{ opacity:1; }
+
+  #win-flash{ position:absolute; inset:0; background:radial-gradient(circle, rgba(255,210,63,.6), transparent 60%); opacity:0; z-index:80; pointer-events:none; }
+  #win-flash.flash-active{ animation:flashBurst .7s ease-out; }
+  @keyframes flashBurst{ 0%{ opacity:0; transform:scale(.6);} 30%{ opacity:1; transform:scale(1.15);} 100%{ opacity:0; transform:scale(1.35);} }
+  #confetti-layer{ position:absolute; inset:0; pointer-events:none; z-index:90; overflow:hidden; }
+  .confetti-piece{ position:absolute; top:-12px; border-radius:2px; animation-name:confettiFall; animation-timing-function:cubic-bezier(.25,.46,.45,.94); animation-fill-mode:forwards; }
+  @keyframes confettiFall{ 0%{ transform:translateY(0) rotate(0deg); opacity:1;} 100%{ transform:translateY(540px) rotate(var(--rot)); opacity:0;} }
+
+  #modal{ position:absolute; inset:0; background:rgba(38,36,58,.6); display:none; align-items:center; justify-content:center; z-index:100; padding:24px; }
+  #modal.show{ display:flex; }
+  #modal2{ position:absolute; inset:0; background:rgba(38,36,58,.6); display:none; align-items:center; justify-content:center; z-index:100; padding:24px; }
+  #modal2.show{ display:flex; }
+  #modal3{ position:absolute; inset:0; background:rgba(38,36,58,.6); display:none; align-items:center; justify-content:center; z-index:100; padding:24px; }
+  #modal3.show{ display:flex; }
+
+  /* ===================== ROUND 2: build stage ===================== */
+  .build-stage{ width:100%; max-width:420px; display:flex; flex-direction:column; align-items:center; }
+  .star-pool{ display:flex; gap:8px; margin-bottom:14px; }
+  .pool-star{ font-size:28px; color:var(--gold); transition:opacity .25s ease, transform .25s ease; text-shadow:0 3px 6px rgba(0,0,0,.15); }
+  .pool-star.spent{ opacity:.18; transform:scale(.65); color:#cfc9ba; text-shadow:none; }
+
+  .build-person{ position:relative; width:150px; height:210px; margin-bottom:22px; transition:transform .5s cubic-bezier(.3,.7,.3,1); }
+  .build-person .char2{ position:absolute; bottom:0; left:59px; width:32px; height:58px; transform:scale(2.3); transform-origin:bottom center; transition:transform .4s ease; }
+
+  /* fuse the joints for this bigger instance so the body reads as one connected figure */
+  #build-char .torso2{ width:22px; left:5px; clip-path:polygon(6% 0%, 94% 0%, 78% 100%, 22% 100%); }
+  #build-char .arm-upper.l{ left:2px; top:14px; }
+  #build-char .arm-upper.r{ left:26px; top:14px; }
+  #build-char .leg-upper.l{ left:9px; }
+  #build-char .leg-upper.r{ left:18px; }
+
+  .cape{ position:absolute; top:100px; left:40px; width:70px; height:0px; background:linear-gradient(180deg, var(--urgency), var(--urgency-dark)); border-radius:0 0 45% 45% / 0 0 65% 65%; opacity:0; transition:height .4s ease, opacity .4s ease; box-shadow:0 6px 14px rgba(0,0,0,.15); transform-origin:top center; animation:capeWave 1.8s ease-in-out infinite; }
+  @keyframes capeWave{ 0%,100%{ transform:skewX(-6deg) rotate(-2deg); } 50%{ transform:skewX(6deg) rotate(2deg); } }
+  .glasses{ position:absolute; top:4px; left:-3px; width:20px; height:7px; border-radius:4px; background:var(--ink); opacity:0; transition:opacity .3s ease; box-shadow:0 0 0 2px rgba(255,255,255,.15) inset; }
+  .glasses::before, .glasses::after{ content:''; position:absolute; top:1.5px; width:5px; height:4px; border-radius:2px; background:rgba(255,255,255,.65); }
+  .glasses::before{ left:2px; } .glasses::after{ right:2px; }
+  .launch-glow{ position:absolute; bottom:8px; left:44px; width:70px; height:22px; border-radius:50%; background:radial-gradient(circle, var(--gold), transparent 70%); opacity:0; transition:opacity .3s ease, transform .3s ease; }
+
+  .build-person.winding{ animation:crouch .5s ease-in-out; }
+  @keyframes crouch{ 0%,100%{ transform:scaleY(1);} 50%{ transform:scaleY(.85) translateY(6px);} }
+  .build-person.flying-success{ transform:translateY(-380px) scale(.9); }
+  .build-person.flying-fail{ transform:translateY(-130px) scale(.95) rotate(8deg); }
+  .build-person.drifting{ animation:drift 1.4s ease-in forwards; }
+  @keyframes drift{
+    0%{ transform:translateY(-130px) scale(.95) rotate(8deg); opacity:1; }
+    60%{ transform:translateY(-24px) scale(.8) rotate(-10deg); opacity:.9; }
+    100%{ transform:translateY(0px) scale(.7) rotate(4deg); opacity:.75; }
+  }
+
+  .star-rows{ width:100%; display:flex; flex-direction:column; gap:12px; margin-bottom:14px; }
+  .star-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .star-row-label{ font-family:'Baloo 2'; font-weight:700; font-size:14px; width:90px; text-align:left; flex-shrink:0; }
+  .stars{ display:flex; gap:4px; }
+  .star{ font-size:22px; color:#e4dfd2; cursor:pointer; transition:color .15s ease, transform .1s ease; user-select:none; }
+  .star:hover{ transform:scale(1.15); }
+  .star.filled{ color:var(--gold); }
+  .stars-left{ font-family:'Baloo 2'; font-weight:700; font-size:13px; color:var(--teamA); margin-bottom:14px; }
+  .stars-left.zero{ color:var(--trust); }
+  #send-btn:disabled{ opacity:.4; cursor:not-allowed; box-shadow:none; }
+  .modal-card{ background:linear-gradient(180deg, #fff, #fffaf0); border-radius:22px; padding:30px 26px 26px; max-width:400px; text-align:center; transform:scale(.7); opacity:0; animation:popInBig .4s cubic-bezier(.34,1.56,.64,1) forwards; position:relative; border:2px dashed #e8dcc0; }
+  @keyframes popInBig{ to{ transform:scale(1); opacity:1; } }
+  .modal-star{ position:absolute; font-size:16px; opacity:.7; animation:twinkle 1.4s ease-in-out infinite; color:var(--timing); }
+  .modal-star.s1{ top:14px; left:20px; animation-delay:0s; }
+  .modal-star.s2{ top:20px; right:24px; animation-delay:.4s; }
+  .modal-star.s3{ bottom:70px; left:16px; animation-delay:.8s; }
+  @keyframes twinkle{ 0%,100%{ opacity:.3; transform:scale(.8) rotate(0deg);} 50%{ opacity:1; transform:scale(1.2) rotate(15deg);} }
+  .modal-icon{ width:60px;height:60px; border-radius:40% 60% 55% 45% / 50% 40% 60% 50%; background:var(--trust); margin:0 auto 12px; display:flex;align-items:center;justify-content:center; font-size:28px; }
+  .rhyme{ font-family:'Baloo 2'; font-weight:700; font-size:17px; line-height:1.6; color:var(--ink); margin:0 0 20px; }
+
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration:.01ms !important; animation-iteration-count:1 !important; } }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <audio id="bg-music" loop preload="none"></audio>
+
+  <div id="top-controls">
+    <div id="lang-toggle">
+      <button id="lang-en" class="active">EN</button>
+      <button id="lang-de">DE</button>
+    </div>
+    <button id="music-toggle">♪ Music</button>
+  </div>
+  <div id="score-badge"><span class="heart">★</span><span id="score-num">0 / 5</span></div>
+  <div id="win-flash"></div>
+  <div id="confetti-layer"></div>
+
+  <!-- SLIDE 1 -->
+  <section class="scene active" id="slide-1">
+    <div class="eyebrow" data-i18n="eyebrow">The Squeeze — Prototype</div>
+    <div class="visual">
+      <div class="bars"><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div></div>
+      <div class="boat"><div class="sail"></div><div class="hull"></div></div>
+    </div>
+    <h1 class="headline" data-i18n="s1_h">China's export dependence is intensifying.</h1>
+    <p class="sub" data-i18n="s1_p">The home market is weak, so exports matter more than ever.</p>
+    <div class="controls">
+      <button class="btn ghost" id="skip-1" data-i18n="skip">Skip intro</button>
+      <button class="btn" id="next-1" data-i18n="next">Next →</button>
+    </div>
+    <div class="dots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+  </section>
+
+  <!-- SLIDE 2 -->
+  <section class="scene" id="slide-2">
+    <div class="eyebrow" data-i18n="eyebrow">The Squeeze — Prototype</div>
+    <div class="visual friction-stage">
+      <div class="icon-group">
+        <div class="gear-wrap">
+          <div class="gear-body"><div class="gear-bolt"></div></div>
+          <div class="tooth t0"></div><div class="tooth t1"></div><div class="tooth t2"></div><div class="tooth t3"></div>
+          <div class="tooth t4"></div><div class="tooth t5"></div><div class="tooth t6"></div><div class="tooth t7"></div>
+        </div>
+        <div class="icon-caption" data-i18n="cap_eu">the rules</div>
+      </div>
+      <div class="spark2 z1"></div><div class="spark2 z2"></div><div class="spark2 z3"></div>
+      <div class="icon-group">
+        <div class="container-wrap">
+          <div class="container-body"></div>
+          <div class="container-door"></div>
+          <div class="container-handle h1"></div><div class="container-handle h2"></div>
+        </div>
+        <div class="icon-caption" data-i18n="cap_cn">the exports</div>
+      </div>
+    </div>
+    <h1 class="headline" data-i18n="s2_h">...while EU–China friction keeps rising.</h1>
+    <p class="sub" data-i18n="s2_p">Both sides are done being patient with each other.</p>
+    <div class="controls">
+      <button class="btn ghost" id="skip-2" data-i18n="skip">Skip intro</button>
+      <button class="btn" id="next-2" data-i18n="next">Next →</button>
+    </div>
+    <div class="dots"><span class="dot"></span><span class="dot on"></span><span class="dot"></span></div>
+  </section>
+
+  <!-- SLIDE 3: two big hourglass balloons -->
+  <section class="scene" id="slide-3">
+    <div class="eyebrow" data-i18n="eyebrow">The Squeeze — Prototype</div>
+    <div class="visual squeeze-stage">
+      <div class="balloon-pair">
+        <div class="hourglass b-one">
+          <div class="hg-top"></div><div class="hg-shine"></div><div class="hg-waist"></div><div class="hg-bottom"></div><div class="hg-knot"></div>
+          <div class="air-line a1"></div><div class="air-line a2"></div>
+          <div class="pop-ring"></div>
+        </div>
+        <div class="hourglass b-two">
+          <div class="hg-top"></div><div class="hg-shine"></div><div class="hg-waist"></div><div class="hg-bottom"></div><div class="hg-knot"></div>
+          <div class="air-line a1"></div><div class="air-line a2"></div>
+          <div class="pop-ring"></div>
+        </div>
+      </div>
+    </div>
+    <h1 class="headline" data-i18n="s3_h">Both sides are feeling the squeeze at once.</h1>
+    <p class="sub" data-i18n="s3_p">It won't get called a China problem. It'll just look like everyone's a bit more tense this quarter.</p>
+    <div class="controls">
+      <button class="btn" id="enter-squeeze" data-i18n="enter">Enter the Squeeze →</button>
+    </div>
+    <div class="dots"><span class="dot"></span><span class="dot"></span><span class="dot on"></span></div>
+  </section>
+
+  <!-- HERO SCENE: round table -->
+  <section class="scene" id="scene-hero">
+    <div class="eyebrow" data-i18n="round1">Round 1 of 5</div>
+
+    <div class="table-scene">
+      <div class="sign-rope"></div>
+      <div class="sign-swing" id="sign-swing">
+        <div id="sign-scale">
+          <div class="sign-box" id="sign-box" data-i18n="sign_text">THE ISSUE</div>
+        </div>
+      </div>
+      <div class="table-ellipse" id="table-ellipse"></div>
+
+
+      <div class="seat seat1">
+        <div class="char2" style="--c:var(--teamA);">
+          <div class="head2"><div class="eyes"></div></div>
+          <div class="torso2"></div>
+          <div class="arm-upper l" style="transform:rotate(-165deg);"><div class="arm-lower" style="transform:rotate(10deg);"><div class="hand"></div></div></div>
+          <div class="arm-upper r" style="transform:rotate(165deg);"><div class="arm-lower" style="transform:rotate(-10deg);"><div class="hand"></div></div></div>
+        </div>
+      </div>
+      <div class="seat seat2">
+        <div class="char2" style="--c:var(--teamB);">
+          <div class="head2" style="transform:rotate(6deg);"><div class="eyes"></div></div>
+          <div class="torso2"></div>
+          <div class="arm-upper l" style="transform:rotate(-125deg);"><div class="arm-lower" style="transform:rotate(95deg);"><div class="hand"></div></div></div>
+          <div class="arm-upper r" style="transform:rotate(125deg);"><div class="arm-lower" style="transform:rotate(-95deg);"><div class="hand"></div></div></div>
+        </div>
+      </div>
+      <div class="seat seat3">
+        <div class="char2" style="--c:var(--teamA);">
+          <div class="head2"><div class="eyes"></div></div>
+          <div class="torso2"></div>
+          <div class="arm-upper l" style="transform:rotate(18deg);"><div class="arm-lower" style="transform:rotate(6deg);"><div class="hand"></div></div></div>
+          <div class="arm-upper r" style="transform:rotate(-70deg);"><div class="arm-lower" style="transform:rotate(8deg);"><div class="hand"></div></div></div>
+          <div class="bubble">?</div>
+        </div>
+      </div>
+      <div class="seat seat4">
+        <div class="char2" style="--c:var(--teamB);">
+          <div class="head2"></div>
+          <div class="torso2" style="transform:rotate(-6deg);"></div>
+          <div class="arm-upper l" style="transform:rotate(70deg);"><div class="arm-lower" style="transform:rotate(-12deg);"><div class="hand"></div></div></div>
+          <div class="arm-upper r" style="transform:rotate(-70deg);"><div class="arm-lower" style="transform:rotate(12deg);"><div class="hand"></div></div></div>
+        </div>
+      </div>
+      <div class="seat seat5">
+        <div class="char2" style="--c:var(--teamA);">
+          <div class="head2"><div class="eyes"></div></div>
+          <div class="torso2"></div>
+          <div class="arm-upper l" style="transform:rotate(-15deg);"><div class="arm-lower" style="transform:rotate(6deg);"><div class="hand"></div></div></div>
+          <div class="arm-upper r" style="transform:rotate(-95deg);"><div class="arm-lower" style="transform:rotate(20deg);"><div class="hand"></div></div></div>
+          <div class="paper-prop" style="right:auto; left:24px; bottom:14px;"></div>
+          <div class="paper-prop2" style="right:auto; left:30px; bottom:20px;"></div>
+          <div class="paper-prop" style="right:auto; left:18px; bottom:22px; animation-delay:.5s;"></div>
+        </div>
+      </div>
+      <div class="seat seat6">
+        <div class="char2" style="--c:var(--teamB);">
+          <div class="head2"><div class="eyes"></div></div>
+          <div class="torso2"></div>
+          <div class="arm-upper l" style="transform:rotate(10deg);"><div class="arm-lower" style="transform:rotate(-6deg);"><div class="hand"></div></div></div>
+          <div class="arm-upper r" style="transform:rotate(-95deg);"><div class="arm-lower" style="transform:rotate(-90deg);"><div class="hand"></div></div></div>
+          <div class="phone-prop" style="top:2px; left:22px;"></div>
+          <div class="bubble">?</div>
+        </div>
+      </div>
+
+      <div id="flyer"></div>
+    </div>
+
+    <h1 class="headline" data-i18n="hero_h">The room is full and loud.</h1>
+    <p class="sub" data-i18n="hero_p">While the conversation is heating up, the real issue is still hanging in the air.</p>
+
+    <div class="heroes-row">
+      <div class="hero-card" data-hero="trust">
+        <div class="hero-blob trust">🛡️</div>
+        <div class="hero-name" data-i18n="hero_trust">Trust</div>
+        <div class="hero-tag" data-i18n="hero_tag">HERO</div>
+      </div>
+      <div class="hero-card" data-hero="timing">
+        <div class="hero-blob timing">⏰</div>
+        <div class="hero-name" data-i18n="hero_timing">Timing</div>
+        <div class="hero-tag" data-i18n="hero_tag">HERO</div>
+      </div>
+      <div class="hero-card" data-hero="urgency">
+        <div class="hero-blob urgency">⚡</div>
+        <div class="hero-name" data-i18n="hero_urgency">Urgency</div>
+        <div class="hero-tag" data-i18n="hero_tag">HERO</div>
+      </div>
+    </div>
+    <div class="toast" id="toast"></div>
+  </section>
+
+  <!-- REVEAL MODAL (round 1) -->
+  <div id="modal">
+    <div class="modal-card">
+      <span class="modal-star s1">✦</span><span class="modal-star s2">✧</span><span class="modal-star s3">✦</span>
+      <div class="modal-icon">🛡️</div>
+      <p class="rhyme" id="rhyme-text"></p>
+      <button class="btn" id="modal-continue" data-i18n="modal_btn">Nice, +1 point →</button>
+    </div>
+  </div>
+
+  <!-- ROUND 2: build the person you send -->
+  <section class="scene" id="scene-round2">
+    <div class="eyebrow" data-i18n="round2">Round 2 of 5</div>
+    <h1 class="headline" data-i18n="r2_h">You solved it. Now someone has to go to the China branch.</h1>
+    <p class="sub" data-i18n="r2_p">Five stars to spend. Where do they go?</p>
+
+    <div class="build-stage">
+      <div class="star-pool" id="star-pool">
+        <span class="pool-star" data-n="1">★</span><span class="pool-star" data-n="2">★</span><span class="pool-star" data-n="3">★</span><span class="pool-star" data-n="4">★</span><span class="pool-star" data-n="5">★</span>
+      </div>
+      <div class="build-person" id="build-person">
+        <div class="cape" id="cape"></div>
+        <div class="launch-glow" id="launch-glow"></div>
+        <div class="char2" id="build-char" style="--c:var(--trust);">
+          <div class="head2"><div class="eyes"></div><div class="glasses" id="glasses"></div></div>
+          <div class="torso2"></div>
+          <div class="arm-upper l"><div class="arm-lower"><div class="hand"></div></div></div>
+          <div class="arm-upper r"><div class="arm-lower"><div class="hand"></div></div></div>
+          <div class="leg-upper l"><div class="leg-lower"><div class="foot"></div></div></div>
+          <div class="leg-upper r"><div class="leg-lower"><div class="foot"></div></div></div>
+        </div>
+      </div>
+
+      <div class="star-rows">
+        <div class="star-row" data-cap="expertise">
+          <div class="star-row-label" data-i18n="cap_expertise">Expertise</div>
+          <div class="stars" data-cap="expertise">
+            <span class="star" data-n="1">★</span><span class="star" data-n="2">★</span><span class="star" data-n="3">★</span><span class="star" data-n="4">★</span><span class="star" data-n="5">★</span>
+          </div>
+        </div>
+        <div class="star-row" data-cap="experience">
+          <div class="star-row-label" data-i18n="cap_experience">Experience</div>
+          <div class="stars" data-cap="experience">
+            <span class="star" data-n="1">★</span><span class="star" data-n="2">★</span><span class="star" data-n="3">★</span><span class="star" data-n="4">★</span><span class="star" data-n="5">★</span>
+          </div>
+        </div>
+        <div class="star-row" data-cap="language">
+          <div class="star-row-label" data-i18n="cap_language">Language</div>
+          <div class="stars" data-cap="language">
+            <span class="star" data-n="1">★</span><span class="star" data-n="2">★</span><span class="star" data-n="3">★</span><span class="star" data-n="4">★</span><span class="star" data-n="5">★</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stars-left" id="stars-left" data-i18n="stars_left">5 stars left</div>
+      <button class="btn" id="send-btn" data-i18n="send_btn" disabled>Send them →</button>
+    </div>
+  </section>
+
+  <!-- ROUND 2 REVEAL MODAL -->
+  <div id="modal2">
+    <div class="modal-card">
+      <span class="modal-star s1">✦</span><span class="modal-star s2">✧</span><span class="modal-star s3">✦</span>
+      <div class="modal-icon" id="modal2-icon">🚀</div>
+      <p class="rhyme" id="rhyme2-text"></p>
+      <button class="btn" id="modal2-continue" data-i18n="modal2_btn">Onward →</button>
+    </div>
+  </div>
+
+  <!-- ROUND 3: ping pong across the rulebook -->
+  <section class="scene" id="scene-round3">
+    <div class="eyebrow" data-i18n="round3">Round 3 of 5</div>
+    <h1 class="headline" data-i18n="r3_h">Pick a side. Try to win the point.</h1>
+    <p class="sub" data-i18n="r3_p">The rulebook is the net. Good luck.</p>
+
+    <div class="pp-scoreboard">
+      <span class="pp-sb-num" id="pp-sb-left">0</span>
+      <span class="pp-sb-dash">:</span>
+      <span class="pp-sb-num" id="pp-sb-right">0</span>
+    </div>
+
+    <div class="pingpong-stage">
+      <div class="pp-table"></div>
+      <div class="pp-leg l"></div>
+      <div class="pp-leg r"></div>
+      <div class="pp-sign"><div class="pp-crown"></div><span class="pp-sparkle sp1">✦</span><span class="pp-sparkle sp2">✧</span><span class="pp-sparkle sp3">✦</span>Book of Rules</div>
+      <div class="pp-net" id="pp-net">
+        <div class="pp-net-left" id="pp-net-left"></div>
+        <div class="pp-net-right" id="pp-net-right"></div>
+        <div class="pp-net-spine"></div>
+      </div>
+      <div class="pp-player left" id="pp-player-left">
+        <div class="pp-player-inner">
+          <div class="char2" style="--c:var(--teamA);">
+            <div class="head2"><div class="eyes"></div></div>
+            <div class="torso2"></div>
+            <div class="arm-upper l"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="arm-upper r"><div class="arm-lower"><div class="hand"><div class="pp-paddle"></div></div></div></div>
+            <div class="leg-upper l"><div class="leg-lower"><div class="foot"></div></div></div>
+            <div class="leg-upper r"><div class="leg-lower"><div class="foot"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pp-player right" id="pp-player-right">
+        <div class="pp-player-inner">
+          <div class="char2" style="--c:var(--teamB);">
+            <div class="head2"><div class="eyes"></div></div>
+            <div class="torso2"></div>
+            <div class="arm-upper l"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="arm-upper r"><div class="arm-lower"><div class="hand"><div class="pp-paddle"></div></div></div></div>
+            <div class="leg-upper l"><div class="leg-lower"><div class="foot"></div></div></div>
+            <div class="leg-upper r"><div class="leg-lower"><div class="foot"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="pp-ball" id="pp-ball" style="display:none;"></div>
+    </div>
+
+    <div class="side-pick" id="side-pick">
+      <div class="side-card" data-side="left" data-i18n="pp_pick_left">Play as the left</div>
+      <div class="side-card" data-side="right" data-i18n="pp_pick_right">Play as the right</div>
+    </div>
+    <button class="hit-btn" id="hit-btn" data-i18n="pp_hit" style="display:none;">Hit!</button>
+    <div class="toast" id="r3-toast"></div>
+  </section>
+
+  <!-- ROUND 3 REVEAL MODAL -->
+  <div id="modal3">
+    <div class="modal-card">
+      <span class="modal-star s1">✦</span><span class="modal-star s2">✧</span><span class="modal-star s3">✦</span>
+      <div class="modal-icon">📖</div>
+      <p class="rhyme" id="rhyme3-text"></p>
+      <button class="btn" id="modal3-continue" data-i18n="modal3_btn">Onward →</button>
+    </div>
+  </div>
+
+  <!-- ROUND 4: two skiers, same finish -->
+  <section class="scene" id="scene-round4">
+    <div class="eyebrow" data-i18n="round4">Round 4 of 5</div>
+    <h1 class="headline" data-i18n="r4_h">One mountain. Two different lines down it.</h1>
+    <div class="countdown-sign" id="countdown-sign">10</div>
+
+    <div class="lanes-stage" id="lanes-stage">
+      <div class="lane gate-lane">
+        <svg class="wave-trail" viewBox="0 0 100 40" preserveAspectRatio="none">
+          <path d="M0,20 C12,0 25,0 37,20 C50,40 62,40 75,20 C87,0 100,0 100,20"/>
+        </svg>
+        <div class="lane-goal">🏁</div>
+        <div class="lane-runner" id="hopper" style="--c:var(--teamA);">
+          <div class="medal" id="medal-hopper"><div class="handle l"></div><div class="cup"></div><div class="handle r"></div><div class="stem"></div><div class="base"></div></div>
+          <div class="char2 mini">
+            <div class="head2"><div class="eyes"></div></div>
+            <div class="torso2"></div>
+            <div class="arm-upper l"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="arm-upper r"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="leg-upper l"><div class="leg-lower"><div class="foot"></div></div></div>
+            <div class="leg-upper r"><div class="leg-lower"><div class="foot"></div></div></div>
+          </div>
+        </div>
+        <div id="gates-layer"></div>
+      </div>
+
+      <div class="lane slope-lane">
+        <svg class="wave-trail" viewBox="0 0 100 40" preserveAspectRatio="none">
+          <path d="M0,20 C8,32 16,36 22,18 C30,-4 38,4 46,20 C54,36 60,38 68,16 C76,-6 84,2 92,20 C96,28 98,22 100,20"/>
+        </svg>
+        <div class="lane-goal">🏁</div>
+        <div class="lane-runner carve" id="walker" style="--c:var(--teamB);">
+          <div class="medal" id="medal-walker"><div class="handle l"></div><div class="cup"></div><div class="handle r"></div><div class="stem"></div><div class="base"></div></div>
+          <div class="char2 mini">
+            <div class="head2"><div class="eyes"></div></div>
+            <div class="torso2"></div>
+            <div class="arm-upper l"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="arm-upper r"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="leg-upper l"><div class="leg-lower"><div class="foot"></div></div></div>
+            <div class="leg-upper r"><div class="leg-lower"><div class="foot"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="hit-btn" id="gate-hit-btn" data-i18n="r4_hitbtn">Carve!</button>
+    <div class="toast" id="r4-toast"></div>
+
+    <div class="calm-reveal" id="calm-reveal">
+      <p class="rhyme" id="rhyme4-text"></p>
+      <button class="btn" id="r4-continue" data-i18n="modal4_btn">Onward →</button>
+    </div>
+  </section>
+
+  <!-- ROUND 5: tug of war -->
+  <section class="scene" id="scene-round5">
+    <div class="eyebrow" data-i18n="round5">Round 5 of 5</div>
+    <h1 class="headline" data-i18n="r5_h">Two generations. One rope.</h1>
+    <p class="sub" data-i18n="r5_p">Keep pulling. See how this ends.</p>
+
+    <div class="tug-meter"><div class="tug-meter-fill" id="tug-fill"></div></div>
+
+    <div class="tug-stage">
+      <div class="tug-ground"></div>
+      <div class="tug-rope" id="tug-rope"></div>
+      <div class="tug-rope-half left" id="rope-half-left"></div>
+      <div class="tug-rope-half right" id="rope-half-right"></div>
+
+      <div class="tug-team old">
+        <div class="tug-runner" id="tug-old-1" style="--c:var(--teamA);">
+          <div class="char2 mini">
+            <div class="head2"><div class="eyes"></div></div>
+            <div class="torso2"></div>
+            <div class="arm-upper l"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="arm-upper r"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="leg-upper l"><div class="leg-lower"><div class="foot"></div></div></div>
+            <div class="leg-upper r"><div class="leg-lower"><div class="foot"></div></div></div>
+          </div>
+        </div>
+        <div class="tug-runner" id="tug-old-2" style="--c:var(--teamA); margin-left:-10px;">
+          <div class="char2 mini">
+            <div class="head2"><div class="eyes"></div></div>
+            <div class="torso2"></div>
+            <div class="arm-upper l"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="arm-upper r"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="leg-upper l"><div class="leg-lower"><div class="foot"></div></div></div>
+            <div class="leg-upper r"><div class="leg-lower"><div class="foot"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tug-team young">
+        <div class="tug-runner" id="tug-young-1" style="--c:var(--teamB); margin-right:-10px;">
+          <div class="char2 mini">
+            <div class="head2"><div class="eyes"></div></div>
+            <div class="torso2"></div>
+            <div class="arm-upper l"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="arm-upper r"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="leg-upper l"><div class="leg-lower"><div class="foot"></div></div></div>
+            <div class="leg-upper r"><div class="leg-lower"><div class="foot"></div></div></div>
+          </div>
+        </div>
+        <div class="tug-runner" id="tug-young-2" style="--c:var(--teamB);">
+          <div class="char2 mini">
+            <div class="head2"><div class="eyes"></div></div>
+            <div class="torso2"></div>
+            <div class="arm-upper l"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="arm-upper r"><div class="arm-lower"><div class="hand"></div></div></div>
+            <div class="leg-upper l"><div class="leg-lower"><div class="foot"></div></div></div>
+            <div class="leg-upper r"><div class="leg-lower"><div class="foot"></div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn" id="tug-pull-btn" data-i18n="r5_pull">Pull!</button>
+
+    <div class="calm-reveal" id="calm-reveal5">
+      <p class="rhyme" id="rhyme5-text"></p>
+      <button class="btn" id="r5-continue" data-i18n="modal5_btn">Finish →</button>
+    </div>
+  </section>
+
+  <!-- FINISH -->
+  <section class="scene" id="scene-finish">
+    <div class="eyebrow" data-i18n="eyebrow">The Squeeze — Prototype</div>
+
+    <div class="finish-stage">
+      <div class="big-trophy">
+        <div class="bt-handle l"></div>
+        <div class="bt-cup"><div class="bt-shine"></div></div>
+        <div class="bt-handle r"></div>
+        <div class="bt-stem"></div>
+        <div class="bt-base"></div>
+      </div>
+      <div class="finish-score" id="finish-score">0 / 5</div>
+    </div>
+
+    <p class="rhyme finish-poem" id="finish-poem"></p>
+
+    <button class="btn" id="finish-restart" data-i18n="finish_btn">Play again →</button>
+  </section>
+
+</div>
+
+<script>
+  const i18n = {
+    en:{
+      eyebrow:"The Squeeze — Prototype",
+      s1_h:"China's export dependence is intensifying.",
+      s1_p:"The home market is weak, and export matters more than ever.",
+      s2_h:"...while EU–China friction keeps rising.",
+      s2_p:"Both sides are done being patient with each other.",
+      cap_eu:"the rules", cap_cn:"the exports",
+      s3_h:"Both sides are feeling the squeeze at once.",
+      s3_p:"It won't be called a cooperation problem. It'll just look like everyone's a bit more tense this quarter.",
+      skip:"Skip intro", next:"Next →", enter:"Enter the Squeeze →",
+      round1:"Round 1 of 5",
+      sign_text:"THE ISSUE",
+      hero_h:"Negotiation is in process...",
+      hero_p:"While the conversation is heating up, what hero will save the day?",
+      hero_trust:"Trust", hero_timing:"Timing", hero_urgency:"Urgency", hero_tag:"HERO",
+      toast_wrong:"Not quite. The issue just got bigger.",
+      rhyme:"Loud speaks first, while speed rushes in.<br>Trust works quietly, yet it aims for the win.<br>Find it early, keep it near,<br>Trust hears the issue, yet it speaks clear.",
+      modal_btn:"Nice, +1 point →",
+      round2:"Round 2 of 5",
+      r2_h:"You're sending your employee to a different country. Equip them with the right skills.",
+      r2_p:"Five stars to spend, use them wisely.",
+      cap_expertise:"Expertise", cap_experience:"Experience", cap_language:"Language",
+      stars_left_n:" stars left", stars_left_zero:"All spent. Ready.",
+      send_btn:"Send them →",
+      r2_success:"Talk flies fast, but talk falls flat.<br>Skill is what should keep you going.<br>Words are shiny, useful is the chat,<br>but expertise is what keeps you growing.",
+      r2_fail:"All voice, no wing, so down you drop.<br>Sounding ready doesn't make it stop.<br>Skill was thin, the fall was quick,<br>next time skip the talk, pick the skill.",
+      modal2_btn:"Onward →",
+      round3:"Round 3 of 5",
+      r3_h:"Enter the game. Pick your side.",
+      r3_p:"Win the point, but don't always trust the guide.",
+      pp_wait:"Wait…",
+      pp_pick_left:"Play as the left",
+      pp_pick_right:"Play as the right",
+      pp_hit:"Hit!",
+      pp_you:"you",
+      r3_into_net:"Deflected. You never even got to swing.",
+      r3_too_early:"Not yet. Wait for it.",
+      r3_success:"Following rules has its bite,<br>but it won't always make your choices right.<br>Play to win, but keep the team in mind,<br>reaching the goal while staying kind.<br>A win for one isn't a win at all,<br>not while a rulebook divides you all.",
+      round4:"Round 4 of 5",
+      r4_h:"One mountain. Two different lines down it.",
+      r4_p:"10 seconds. Two roads down the mountain.",
+      r4_stumble:"Wait for the gate.",
+      r4_hitbtn:"Carve!",
+      modal4_btn:"Onward →",
+      r4_success:"No road is the same, no wrong or right.<br>Victory to claim no matter the fight.<br>Neither was slow, neither was late,<br>two different ways, caught the same bait.",
+      round5:"Round 5 of 5",
+      r5_h:"Two generations. One rope.",
+      r5_p:"Keep pulling. See how this ends.",
+      r5_pull:"Pull!",
+      modal5_btn:"Finish →",
+      finish_h:"Everybody wins.",
+      finish_btn:"Play again →",
+      finish_poem:"Leading a team is not for the weak,<br>steady trying brings you to peak.<br>Attempts can always justify<br>a new chance to learn and clarify.",
+      r5_success:"Both pulled hard, both held the line,<br>both were sure the rope was fine.<br>Then it snapped and down they fell,<br>yet there was no time to dwell.<br>For they were stubborn, now they are wise,<br>when ground has shifted, you are each other's eyes.",
+      modal3_btn:"Onward →"
+    },
+    de:{
+      eyebrow:"Die Zwickmühle — Prototyp",
+      s1_h:"Chinas Exportabhängigkeit wächst.",
+      s1_p:"Der Heimatmarkt ist schwach, und Export zählt mehr denn je.",
+      s2_h:"...während die Spannung zwischen EU und China steigt.",
+      s2_p:"Beide Seiten haben keine Geduld mehr füreinander.",
+      cap_eu:"die Regeln", cap_cn:"die Exporte",
+      s3_h:"Beide Seiten spüren den Druck gleichzeitig.",
+      s3_p:"Niemand nennt es ein Kooperationsproblem. Es sieht einfach so aus, als wäre gerade jeder etwas angespannter.",
+      skip:"Intro überspringen", next:"Weiter →", enter:"Rein in die Klemme →",
+      round1:"Runde 1 von 5",
+      sign_text:"DAS PROBLEM",
+      hero_h:"Die Verhandlung läuft...",
+      hero_p:"Während sich das Gespräch aufheizt, welcher Held rettet den Tag?",
+      hero_trust:"Vertrauen", hero_timing:"Timing", hero_urgency:"Eile", hero_tag:"HELD",
+      toast_wrong:"Nicht ganz. Das Problem ist gerade größer geworden.",
+      rhyme:"Laut spricht zuerst, Eile stürmt herein,<br>Vertrauen wirkt still, will trotzdem der Sieger sein.<br>Find es früh, halt es nah,<br>Vertrauen hört das Problem, spricht klar, das ist wahr.",
+      modal_btn:"Stark, +1 Punkt →",
+      round2:"Runde 2 von 5",
+      r2_h:"Du schickst deine Mitarbeiterin oder deinen Mitarbeiter in ein anderes Land. Statte sie mit den richtigen Fähigkeiten aus.",
+      r2_p:"Fünf Sterne zu vergeben, nutze sie weise.",
+      cap_expertise:"Fachwissen", cap_experience:"Erfahrung", cap_language:"Sprache",
+      stars_left_n:" Sterne übrig", stars_left_zero:"Alle vergeben. Bereit.",
+      send_btn:"Losschicken →",
+      r2_success:"Reden ist schnell, doch Reden fällt flach,<br>Können ist das, was dich weiterträgt.<br>Worte sind glänzend, nützlich im Gespräch,<br>doch Fachwissen ist es, das dich wachsen lässt.",
+      r2_fail:"Nur Worte, keine Kraft, dann fällst du hin,<br>sicher klingen reicht nicht, das macht noch keinen Sinn.<br>Können fehlte, der Fall kam schnell,<br>nächstes Mal wähl Können statt der Stell'.",
+      modal2_btn:"Weiter →",
+      round3:"Runde 3 von 5",
+      r3_h:"Betritt das Spiel. Wähl deine Seite.",
+      r3_p:"Gewinn den Punkt, aber trau nicht blind dem Leitfaden.",
+      pp_wait:"Warte…",
+      pp_pick_left:"Als linke Seite spielen",
+      pp_pick_right:"Als rechte Seite spielen",
+      pp_hit:"Schlag!",
+      pp_you:"du",
+      r3_into_net:"Abgelenkt. Du kamst nicht mal zum Schlag.",
+      r3_too_early:"Noch nicht. Warte ab.",
+      r3_success:"Regeln haben ihren Biss,<br>doch sie machen nicht jede Wahl gewiss.<br>Spiel um zu gewinnen, doch denk ans Team,<br>erreiche das Ziel und bleib dabei nicht gemein.<br>Ein Sieg für einen ist gar kein Sieg,<br>solang ein Regelwerk euch alle teilt und lieg.",
+      round4:"Runde 4 von 5",
+      r4_h:"Ein Berg. Zwei verschiedene Linien hinunter.",
+      r4_p:"10 Sekunden. Zwei Wege den Berg hinunter.",
+      r4_stumble:"Warte auf das Tor.",
+      r4_hitbtn:"Schwingen!",
+      modal4_btn:"Weiter →",
+      r4_success:"Kein Weg ist gleich, kein falsch, kein recht,<br>den Sieg holt sich jeder auf eigenem Gefecht.<br>Keiner war langsam, keiner zu spät,<br>zwei verschiedene Wege, am Ziel es sich dreht.",
+      round5:"Runde 5 von 5",
+      r5_h:"Zwei Generationen. Ein Seil.",
+      r5_p:"Zieh weiter. Schau, wie es endet.",
+      r5_pull:"Ziehen!",
+      modal5_btn:"Fertig →",
+      finish_h:"Alle gewinnen.",
+      finish_btn:"Nochmal spielen →",
+      finish_poem:"Ein Team zu führen ist nicht für Schwache,<br>stetiges Bemühen bringt dich zur Sache.<br>Versuche rechtfertigen immer aufs Neu'<br>die Chance zu lernen und zu verstehen dabei.",
+      r5_success:"Beide zogen fest, beide hielten die Linie,<br>beide waren sicher, das Seil hält, keine Frage.<br>Dann riss es, und beide fielen hin,<br>doch es blieb keine Zeit zum Grübeln darin.<br>Denn sie waren stur, jetzt sind sie weise,<br>wenn sich der Boden verschiebt, seid ihr einander die Augen, auf leise Weise.",
+      modal3_btn:"Weiter →"
+    }
+  };
+
+  let currentLang = 'en';
+  function applyLang(lang){
+    currentLang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if(i18n[lang][key] !== undefined) el.innerHTML = i18n[lang][key];
+    });
+    document.getElementById('rhyme-text').innerHTML = i18n[lang].rhyme;
+    document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+    document.getElementById('lang-de').classList.toggle('active', lang === 'de');
+  }
+  document.getElementById('lang-en').onclick = () => { applyLang('en'); if(window.renderStars) renderStars(); };
+  document.getElementById('lang-de').onclick = () => { applyLang('de'); if(window.renderStars) renderStars(); };
+  applyLang('en');
+
+  /* ============ 8-bit music engine (original synthesis, not a recording) ============ */
+  let audioCtx = null;
+  let musicOn = false;
+  let musicScheduled = false;
+  let currentTempoMs = 380; // slow default
+  let noteIndex = 0, repIndex = 0, nextNoteTime = 0, schedulerTimer = null;
+  let pattern = [0,2,3,2,0,3,2,0];
+  let transposeSteps = [0,2,4];
+  let baseFreq = 146.83; // D3
+
+  const bgMusic = document.getElementById('bg-music') || new Audio();
+  try { bgMusic.volume = 0.28; } catch(e) {}
+  let musicCardDucked = false;
+  let musicCurrentLevel = 0.28;
+  let musicVolTimer = null;
+
+  const ROUND_VOLUME = {
+    intro: 0.26, round1: 0.30, round2: 0.34, round3: 0.40,
+    round4: 0.46, round5: 0.52, finale: 0.58   // light build across the game, never maxed out
+  };
+  const CARD_VOLUME = 0.13; // quieter while a reveal card is on screen
+
+  function rampBgVolume(target){
+    if(musicVolTimer) clearInterval(musicVolTimer);
+    const start = bgMusic.volume, diff = target - start, steps = 45;
+    let i = 0;
+    musicVolTimer = setInterval(() => {
+      i++;
+      const p = i / steps;
+      const eased = p < 0.5 ? 2*p*p : 1 - Math.pow(-2*p+2, 2)/2; // smooth ease in/out
+      bgMusic.volume = i >= steps ? target : start + diff * eased;
+      if(i >= steps) clearInterval(musicVolTimer);
+    }, 45);
+  }
+
+  function setMusicTheme(name){
+    const level = ROUND_VOLUME[name];
+    if(level === undefined) return;
+    musicCurrentLevel = level;
+    musicCardDucked = false;
+    rampBgVolume(level);
+  }
+
+  function duckForCard(){
+    musicCardDucked = true;
+    rampBgVolume(CARD_VOLUME);
+  }
+
+  function unduckFromCard(){
+    musicCardDucked = false;
+    rampBgVolume(musicCurrentLevel);
+  }
+
+  function windDownMusic(duration){
+    if(musicVolTimer) clearInterval(musicVolTimer);
+    bgMusic.preservesPitch = false;
+    bgMusic.mozPreservesPitch = false;
+    bgMusic.webkitPreservesPitch = false;
+    const steps = 70, intervalMs = duration / steps;
+    const startVol = bgMusic.volume, startRate = bgMusic.playbackRate || 1;
+    let i = 0;
+    musicVolTimer = setInterval(() => {
+      i++;
+      const p = i / steps;
+      bgMusic.volume = Math.max(0, startVol * (1 - p));
+      bgMusic.playbackRate = Math.max(0.35, startRate - (startRate - 0.35) * p);
+      if(i >= steps){
+        clearInterval(musicVolTimer);
+        bgMusic.pause();
+      }
+    }, intervalMs);
+  }
+  setMusicTheme('intro');
+
+  function ensureAudio(){ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+
+  function playNote(freq, dur, startTime){
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(freq, startTime);
+    gain.gain.setValueAtTime(0.0001, startTime);
+    gain.gain.exponentialRampToValueAtTime(0.1, startTime + 0.008);
+    gain.gain.exponentialRampToValueAtTime(0.0001, startTime + dur);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start(startTime);
+    osc.stop(startTime + dur + 0.02);
+  }
+
+  function startMusic(){
+    bgMusic.volume = musicCardDucked ? CARD_VOLUME : musicCurrentLevel;
+    bgMusic.play().catch(() => {});
+  }
+  function stopMusic(){
+    bgMusic.pause();
+  }
+  function setTempo(ms){ currentTempoMs = ms; }
+  function rampTempo(){ /* tempo no longer applies to a real audio track; kept as a no-op so existing calls stay harmless */ }
+
+  document.getElementById('music-toggle').onclick = function(){
+    musicOn = !musicOn;
+    this.classList.toggle('on', musicOn);
+    this.textContent = musicOn ? '♪ On' : '♪ Music';
+    if(musicOn) startMusic(); else stopMusic();
+  };
+
+  /* ============ scene navigation, tuned to tempo ups and downs ============ */
+  function show(id){
+    document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+  document.getElementById('next-1').onclick = () => { show('slide-2'); rampTempo(230); };
+  document.getElementById('next-2').onclick = () => { show('slide-3'); };
+  document.getElementById('skip-1').onclick = () => { show('scene-hero'); rampTempo(200); setMusicTheme('round1'); };
+  document.getElementById('skip-2').onclick = () => { show('scene-hero'); rampTempo(200); setMusicTheme('round1'); };
+  document.getElementById('enter-squeeze').onclick = () => { show('scene-hero'); rampTempo(200); setMusicTheme('round1'); };
+
+  function spawnConfettiBurst(originX, originY){
+    const layer = document.getElementById('confetti-layer');
+    const colors = ['#2EC4B6','#FFB84C','#FF6B5B','#8B5FBF','#FF9F5B','#FFD23F'];
+    for(let i=0;i<90;i++){
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece2';
+      const angle = Math.random()*Math.PI*2;
+      const dist = 90 + Math.random()*260;
+      const dx = Math.cos(angle)*dist;
+      const dy = Math.sin(angle)*dist - 20;
+      const rot = (Math.random()*720 - 360);
+      const color = colors[Math.floor(Math.random()*colors.length)];
+      const w = 6 + Math.random()*7;
+      const delay = Math.random()*0.12;
+      const dur = 1.3 + Math.random()*0.9;
+      piece.style.left = originX+'px';
+      piece.style.top = originY+'px';
+      piece.style.background = color;
+      piece.style.width = w+'px';
+      piece.style.height = (w*0.4)+'px';
+      piece.style.setProperty('--dx', dx+'px');
+      piece.style.setProperty('--dy', dy+'px');
+      piece.style.setProperty('--rot', rot+'deg');
+      piece.style.animationDelay = delay+'s';
+      piece.style.animationDuration = dur+'s';
+      layer.appendChild(piece);
+      setTimeout(()=>piece.remove(), (delay+dur+0.2)*1000);
+    }
+  }
+
+  function finishWin(cx, cy){
+    rampTempo(160);
+    setTimeout(() => {
+      document.getElementById('win-flash').classList.add('flash-active');
+      spawnConfettiBurst(cx, cy);
+      score += 1;
+      scoreNum.textContent = score + ' / 5';
+      scoreBadge.classList.add('bump');
+      setTimeout(() => scoreBadge.classList.remove('bump'), 300);
+      setTimeout(() => { document.getElementById('win-flash').classList.remove('flash-active'); }, 800);
+      setTimeout(() => { document.getElementById('modal').classList.add('show'); duckForCard(); }, 650);
+    }, 350); // beat of pause before the burst
+  }
+
+  function growSign(){
+    signScale = Math.min(signScale + 0.24, 2.1);
+    document.getElementById('sign-scale').style.transform = 'scale(' + signScale + ')';
+    const box = document.getElementById('sign-box');
+    box.classList.remove('shake');
+    void box.offsetWidth;
+    box.classList.add('shake');
+  }
+
+  function grabAndLand(flyer){
+    document.getElementById('sign-swing').classList.add('landed');
+    setTimeout(() => {
+      document.getElementById('sign-box').classList.add('crack');
+      const appRect = document.getElementById('app').getBoundingClientRect();
+      const tableRect = document.getElementById('table-ellipse').getBoundingClientRect();
+      const cx = tableRect.left - appRect.left + tableRect.width/2;
+      const cy = tableRect.top - appRect.top + tableRect.height/2;
+      flyer.style.transition = 'top .55s cubic-bezier(.3,.7,.3,1), left .55s cubic-bezier(.3,.7,.3,1)';
+      flyer.style.left = (cx - 22) + 'px';
+      flyer.style.top = (cy - 22) + 'px';
+      setTimeout(() => {
+        flyer.style.display = 'none';
+        finishWin(cx, cy);
+      }, 580);
+    }, 200);
+  }
+
+  const heroMeta = {
+    trust:{ color:'var(--trust)', icon:'🛡️' },
+    timing:{ color:'var(--timing)', icon:'⏰' },
+    urgency:{ color:'var(--urgency)', icon:'⚡' }
+  };
+  let signScale = 1;
+
+  function flyHero(type, cardEl){
+    const appRect = document.getElementById('app').getBoundingClientRect();
+    const cardRect = cardEl.getBoundingClientRect();
+    const signRect = document.getElementById('sign-box').getBoundingClientRect();
+    const flyer = document.getElementById('flyer');
+    const meta = heroMeta[type];
+    flyer.style.background = meta.color;
+    flyer.textContent = meta.icon;
+    flyer.style.display = 'flex';
+    flyer.style.transition = 'none';
+    flyer.style.left = (cardRect.left - appRect.left + cardRect.width/2 - 22) + 'px';
+    flyer.style.top = (cardRect.top - appRect.top + cardRect.height/2 - 22) + 'px';
+    flyer.getBoundingClientRect();
+    requestAnimationFrame(() => {
+      flyer.style.transition = 'top .65s cubic-bezier(.22,.85,.3,1.1), left .65s cubic-bezier(.22,.85,.3,1.1)';
+      flyer.style.left = (signRect.left - appRect.left + signRect.width/2 - 22) + 'px';
+      flyer.style.top = (signRect.top - appRect.top + signRect.height/2 - 22) + 'px';
+    });
+    setTimeout(() => {
+      if(type === 'trust'){
+        grabAndLand(flyer);
+      } else {
+        growSign();
+        setTimeout(() => {
+          flyer.style.transition = 'top .5s ease-in, left .5s ease-in, opacity .5s ease-in';
+          flyer.style.top = '-60px';
+          flyer.style.opacity = '0';
+          setTimeout(() => { flyer.style.display = 'none'; flyer.style.opacity = '1'; }, 520);
+        }, 300);
+      }
+    }, 680);
+  }
+
+  const toast = document.getElementById('toast');
+  const scoreBadge = document.getElementById('score-badge');
+  const scoreNum = document.getElementById('score-num');
+  let score = 0;
+
+  document.querySelectorAll('.hero-card').forEach(card => {
+    card.addEventListener('click', () => {
+      if(card.classList.contains('disabled')) return;
+      const hero = card.dataset.hero;
+      if(hero !== 'trust'){
+        card.classList.add('disabled');
+        toast.classList.add('show');
+        toast.textContent = i18n[currentLang].toast_wrong;
+      }
+      flyHero(hero, card);
+    });
+  });
+
+  document.getElementById('modal-continue').onclick = () => {
+    document.getElementById('modal').classList.remove('show');
+    toast.classList.remove('show');
+    show('scene-round2');
+    rampTempo(220);
+    setMusicTheme('round2');
+  };
+
+  /* ============ ROUND 2: build the person ============ */
+  const capValues = { expertise:0, experience:0, language:0 };
+  const starsLeftEl = document.getElementById('stars-left');
+  const sendBtn = document.getElementById('send-btn');
+  const buildPerson = document.getElementById('build-person');
+  const capeEl = document.getElementById('cape');
+  const glassesEl = document.getElementById('glasses');
+  const glowEl = document.getElementById('launch-glow');
+
+  function totalStars(){ return capValues.expertise + capValues.experience + capValues.language; }
+
+  function renderStars(){
+    document.querySelectorAll('.stars').forEach(row => {
+      const cap = row.dataset.cap;
+      const val = capValues[cap];
+      row.querySelectorAll('.star').forEach(star => {
+        star.classList.toggle('filled', Number(star.dataset.n) <= val);
+      });
+    });
+    const remaining = 5 - totalStars();
+    starsLeftEl.textContent = remaining + i18n[currentLang].stars_left_n;
+    starsLeftEl.classList.toggle('zero', remaining === 0);
+    if(remaining === 0){
+      starsLeftEl.textContent = i18n[currentLang].stars_left_zero;
+    }
+    sendBtn.disabled = remaining !== 0;
+    document.querySelectorAll('.pool-star').forEach(s => {
+      s.classList.toggle('spent', Number(s.dataset.n) > remaining);
+    });
+    renderPreview();
+  }
+
+  function renderPreview(){
+    const capeHeight = capValues.experience === 0 ? 0 : 34 + capValues.experience * 12;
+    capeEl.style.height = capeHeight + 'px';
+    capeEl.style.opacity = capValues.experience === 0 ? 0 : 0.7 + capValues.experience * 0.06;
+    glassesEl.style.opacity = capValues.expertise === 0 ? 0 : 0.5 + capValues.expertise * 0.1;
+    glowEl.style.opacity = capValues.language === 0 ? 0 : 0.35 + capValues.language * 0.12;
+    glowEl.style.transform = 'scale(' + (0.7 + capValues.language * 0.1) + ')';
+  }
+
+  document.querySelectorAll('.stars .star').forEach(star => {
+    star.addEventListener('click', () => {
+      const row = star.parentElement;
+      const cap = row.dataset.cap;
+      const n = Number(star.dataset.n);
+      const others = totalStars() - capValues[cap];
+      const maxAllowed = 5 - others;
+      capValues[cap] = (n === capValues[cap]) ? n - 1 : Math.min(n, maxAllowed);
+      renderStars();
+    });
+  });
+
+  function showModal2(success){
+    const icon = document.getElementById('modal2-icon');
+    const rhyme = document.getElementById('rhyme2-text');
+    icon.textContent = success ? '🚀' : '💨';
+    rhyme.innerHTML = success ? i18n[currentLang].r2_success : i18n[currentLang].r2_fail;
+    document.getElementById('modal2').classList.add('show');
+    duckForCard();
+  }
+
+  sendBtn.addEventListener('click', () => {
+    sendBtn.disabled = true;
+    const success = capValues.language <= 2;
+    buildPerson.classList.add('winding');
+    rampTempo(150);
+    setTimeout(() => {
+      buildPerson.classList.remove('winding');
+      if(success){
+        buildPerson.classList.add('flying-success');
+        setTimeout(() => {
+          const rect = buildPerson.getBoundingClientRect();
+          const appRect = document.getElementById('app').getBoundingClientRect();
+          document.getElementById('win-flash').classList.add('flash-active');
+          spawnConfettiBurst(rect.left - appRect.left + rect.width/2, rect.top - appRect.top);
+          score += 1;
+          scoreNum.textContent = score + ' / 5';
+          scoreBadge.classList.add('bump');
+          setTimeout(() => scoreBadge.classList.remove('bump'), 300);
+          setTimeout(() => document.getElementById('win-flash').classList.remove('flash-active'), 800);
+          setTimeout(() => showModal2(true), 500);
+        }, 550);
+      } else {
+        buildPerson.classList.add('flying-fail');
+        setTimeout(() => {
+          buildPerson.classList.remove('flying-fail');
+          buildPerson.classList.add('drifting');
+          setTimeout(() => showModal2(false), 1450);
+        }, 550);
+      }
+    }, 520);
+  });
+
+  document.getElementById('modal2-continue').onclick = () => {
+    document.getElementById('modal2').classList.remove('show');
+    const wasSuccess = document.getElementById('modal2-icon').textContent === '🚀';
+    if(wasSuccess){
+      show('scene-round3');
+      rampTempo(210);
+      setMusicTheme('round3');
+    } else {
+      unduckFromCard();
+      buildPerson.classList.remove('drifting', 'flying-fail', 'flying-success');
+      sendBtn.disabled = false;
+    }
+  };
+  renderStars();
+
+  /* ============ ROUND 3: ping pong across the rulebook ============ */
+  const ppStage = document.querySelector('.pingpong-stage');
+  const ppBall = document.getElementById('pp-ball');
+  const hitBtn = document.getElementById('hit-btn');
+  const r3toast = document.getElementById('r3-toast');
+  let ppPlayerSide = null;
+  let ppScoreLeft = 0;
+  let ppScoreRight = 0;
+  let ppHitAvailable = false;
+  let ppLegTimer = null;
+  let ppDuration = 1350;
+  let ppVolley = 0;
+  let ppEnded = false;
+
+  function ppLeftX(){ return 46; }
+  function ppRightX(){ return ppStage.clientWidth - 46; }
+  function ppPlayerX(){ return ppPlayerSide === 'left' ? ppLeftX() : ppRightX(); }
+  function ppOpponentX(){ return ppPlayerSide === 'left' ? ppRightX() : ppLeftX(); }
+  function ppSwing(side){
+    const el = document.getElementById('pp-player-' + side);
+    el.classList.add('swinging');
+    setTimeout(() => el.classList.remove('swinging'), 150);
+  }
+  function ppPositionBall(x){
+    ppBall.style.transition = 'none';
+    ppBall.style.animation = 'none';
+    ppBall.style.left = x + 'px';
+    ppBall.getBoundingClientRect();
+  }
+  function ppPing(freq, withFlash){
+    ensureAudio();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    playNote(freq, 0.09, audioCtx.currentTime);
+    if(withFlash){
+      ppBall.style.animation = ppBall.style.animation.replace(/,\s*ballFlash[^,]*/, '') + ', ballFlash .18s ease-out';
+    }
+  }
+  let ppWindowTimer = null;
+
+  function ppScheduleIncoming(){
+    if(ppEnded) return;
+    ppPositionBall(ppOpponentX());
+    ppHitAvailable = false;
+    hitBtn.classList.remove('active');
+    hitBtn.textContent = i18n[currentLang].pp_wait;
+    ppBall.style.transition = 'left ' + ppDuration + 'ms linear';
+    ppBall.style.animation = 'ballArc ' + ppDuration + 'ms ease-in-out';
+    requestAnimationFrame(() => { ppBall.style.left = ppPlayerX() + 'px'; });
+    clearTimeout(ppWindowTimer);
+    ppWindowTimer = setTimeout(() => {
+      if(ppEnded) return;
+      ppHitAvailable = true;
+      hitBtn.classList.add('active');
+      hitBtn.textContent = i18n[currentLang].pp_hit;
+    }, Math.round(ppDuration * 0.55));
+    clearTimeout(ppLegTimer);
+    ppLegTimer = setTimeout(() => {
+      if(!ppEnded) ppScheduleIncoming();
+    }, ppDuration + 40);
+  }
+
+  function ppBumpScore(side){
+    if(side === 'left') ppScoreLeft++; else ppScoreRight++;
+    const el = document.getElementById('pp-sb-' + side);
+    el.textContent = side === 'left' ? ppScoreLeft : ppScoreRight;
+    el.classList.remove('bump');
+    void el.offsetWidth;
+    el.classList.add('bump');
+  }
+
+  function ppReturnLeg(){
+    ppBall.style.transition = 'left ' + ppDuration + 'ms linear';
+    ppBall.style.animation = 'ballArc ' + ppDuration + 'ms ease-in-out';
+    requestAnimationFrame(() => { ppBall.style.left = ppOpponentX() + 'px'; });
+    setTimeout(() => {
+      if(ppEnded) return;
+      ppPing(520, false);
+      const opponentSide = ppPlayerSide === 'left' ? 'right' : 'left';
+      ppBumpScore(opponentSide);
+      ppSwing(opponentSide);
+      if(ppVolley >= 4){
+        ppNetFail();
+      } else {
+        ppScheduleIncoming();
+      }
+    }, ppDuration);
+  }
+
+  function ppNetFail(){
+    ppEnded = true;
+    hitBtn.style.display = 'none';
+    rampTempo(150);
+    const netX = ppStage.clientWidth / 2;
+    const approach = Math.round(ppDuration * 0.55);
+    ppPositionBall(ppOpponentX());
+    ppBall.style.transition = 'left ' + approach + 'ms linear';
+    ppBall.style.animation = 'ballArc ' + approach + 'ms ease-in-out';
+    requestAnimationFrame(() => { ppBall.style.left = netX + 'px'; });
+    setTimeout(() => {
+      document.getElementById('pp-net').classList.add('wobble');
+      ppPing(140, false);
+      const dropX = netX + (ppPlayerSide === 'left' ? -34 : 34);
+      // FALL 1: drops from flight height down onto the table surface
+      ppBall.style.animation = 'none';
+      ppBall.style.transition = 'left .3s ease-out, bottom .32s cubic-bezier(.55,0,.85,.35)';
+      ppBall.style.left = dropX + 'px';
+      ppBall.style.bottom = '58px';
+      setTimeout(() => {
+        ppPing(200, false); // thud 1
+        ppBall.style.transition = 'bottom .13s ease-out';
+        ppBall.style.bottom = '68px';
+        setTimeout(() => {
+          ppBall.style.transition = 'bottom .13s ease-in';
+          ppBall.style.bottom = '58px';
+          setTimeout(() => {
+            // FALL 2: drops off the table edge, down to the floor
+            const floorX = dropX + (ppPlayerSide === 'left' ? -14 : 14);
+            ppBall.style.transition = 'left .3s ease-out, bottom .34s cubic-bezier(.55,0,.85,.35)';
+            ppBall.style.left = floorX + 'px';
+            ppBall.style.bottom = '20px';
+            setTimeout(() => {
+              ppPing(130, false); // thud 2, duller
+              ppBall.style.transition = 'bottom .1s ease-out';
+              ppBall.style.bottom = '26px';
+              setTimeout(() => {
+                ppBall.style.transition = 'bottom .1s ease-in';
+                ppBall.style.bottom = '20px';
+                setTimeout(() => {
+                  // mocking slow-motion roll along the floor, off screen
+                  const rollX = ppPlayerSide === 'left' ? -40 : ppStage.clientWidth + 40;
+                  ppBall.style.transition = 'left 3.4s cubic-bezier(.25,.1,.4,1)';
+                  ppBall.style.animation = 'ballRoll 3.4s linear';
+                  ppBall.style.left = rollX + 'px';
+                  setTimeout(() => {
+                    ppBall.style.display = 'none';
+                    document.getElementById('pp-net').classList.remove('wobble');
+                    document.getElementById('pp-net').classList.add('open');
+                    score += 1;
+                    scoreNum.textContent = score + ' / 5';
+                    scoreBadge.classList.add('bump');
+                    setTimeout(() => scoreBadge.classList.remove('bump'), 300);
+                    setTimeout(() => {
+                      document.getElementById('rhyme3-text').innerHTML = i18n[currentLang].r3_success;
+                      document.getElementById('modal3').classList.add('show');
+                      duckForCard();
+                    }, 650);
+                  }, 3450);
+                }, 100);
+              }, 100);
+            }, 340);
+          }, 130);
+        }, 130);
+      }, 320);
+    }, approach);
+  }
+
+  hitBtn.addEventListener('click', () => {
+    if(ppEnded) return;
+    if(!ppHitAvailable){
+      hitBtn.classList.remove('too-early');
+      void hitBtn.offsetWidth;
+      hitBtn.classList.add('too-early');
+      r3toast.classList.add('show');
+      r3toast.textContent = i18n[currentLang].r3_too_early;
+      return;
+    }
+    r3toast.classList.remove('show');
+    ppHitAvailable = false;
+    hitBtn.classList.remove('active');
+    clearTimeout(ppWindowTimer);
+    clearTimeout(ppLegTimer);
+    ppPing(760, true);
+    ppSwing(ppPlayerSide);
+    ppBumpScore(ppPlayerSide);
+    ppVolley++;
+    ppDuration = Math.max(650, ppDuration - 90);
+    ppReturnLeg();
+  });
+
+  document.querySelectorAll('.side-card').forEach(card => {
+    card.addEventListener('click', () => {
+      ppPlayerSide = card.dataset.side;
+      document.getElementById('side-pick').style.display = 'none';
+      hitBtn.style.display = 'inline-block';
+      const tag = document.createElement('div');
+      tag.className = 'pp-you-tag';
+      tag.textContent = i18n[currentLang].pp_you;
+      document.getElementById('pp-player-' + ppPlayerSide).appendChild(tag);
+      ppBall.style.display = 'block';
+      rampTempo(190);
+      ppScheduleIncoming();
+    });
+  });
+
+  document.getElementById('modal3-continue').onclick = () => {
+    document.getElementById('modal3').classList.remove('show');
+    show('scene-round4');
+    rampTempo(260);
+    setMusicTheme('round4');
+    r4Init();
+  };
+
+  /* ============ ROUND 4: two skiers, same finish, one clock ============ */
+  const lanesStage = document.getElementById('lanes-stage');
+  const hopper = document.getElementById('hopper');
+  const walker = document.getElementById('walker');
+  const r4toast = document.getElementById('r4-toast');
+  const gateHitBtn = document.getElementById('gate-hit-btn');
+  const gatesLayer = document.getElementById('gates-layer');
+  const R4_DURATION = 10000;
+  const R4_AMPLITUDE = 32;
+  const R4_GATE_FRACS = [0.16, 0.32, 0.48, 0.64, 0.80, 0.94];
+  const R4_GATE_WINDOW = 450;
+  let r4started = false;
+  let r4startTime = 0;
+  let r4gates = [];
+  let r4activeGate = null;
+
+  function r4WaveY(frac, phase){
+    return Math.sin(frac * Math.PI * 2 * 1.6 + (phase || 0)) * R4_AMPLITUDE;
+  }
+  function r4FreeWaveY(frac){
+    return Math.sin(frac * Math.PI * 2 * 1.1 + 0.4) * 22 + Math.sin(frac * Math.PI * 2 * 3.3 + 1.2) * 11;
+  }
+
+  function r4Init(){
+    if(r4started) return;
+    r4started = true;
+
+    // build gate markers positioned along the gate lane's curve
+    gatesLayer.innerHTML = '';
+    r4gates = R4_GATE_FRACS.map((frac, i) => {
+      const el = document.createElement('div');
+      el.className = 'gate';
+      const laneW = lanesStage.clientWidth - 30;
+      const x = frac * laneW;
+      const y = 39 + R4_AMPLITUDE + r4WaveY(frac, 0) - 17;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+      const num = document.createElement('span');
+      num.className = 'gn';
+      num.textContent = (i + 1);
+      el.appendChild(num);
+      gatesLayer.appendChild(el);
+      return { el, frac, time: frac * R4_DURATION, cleared: false, missed: false };
+    });
+
+    r4startTime = performance.now();
+    requestAnimationFrame(r4Tick);
+  }
+
+  const countdownSign = document.getElementById('countdown-sign');
+
+  function r4Tick(now){
+    const elapsed = now - r4startTime;
+    const frac = Math.min(1, elapsed / R4_DURATION);
+    const laneW = lanesStage.clientWidth - 30;
+
+    const secondsLeft = Math.max(0, Math.ceil((R4_DURATION - elapsed) / 1000));
+    countdownSign.textContent = secondsLeft;
+
+    // gate-lane skier position
+    const hx = frac * laneW;
+    const hy = 39 + R4_AMPLITUDE + r4WaveY(frac, 0) - 20;
+    hopper.style.left = hx + 'px';
+    hopper.style.top = hy + 'px';
+
+    // free skier, independent phase, same clock
+    const wx = frac * laneW;
+    const wy = 39 + R4_AMPLITUDE + r4FreeWaveY(frac) - 20;
+    walker.style.left = wx + 'px';
+    walker.style.top = wy + 'px';
+
+    // check gate windows
+    let anyActive = null;
+    r4gates.forEach(g => {
+      if(g.cleared || g.missed) return;
+      const dt = elapsed - g.time;
+      if(Math.abs(dt) <= R4_GATE_WINDOW){
+        anyActive = g;
+        g.el.classList.add('armed');
+      } else {
+        g.el.classList.remove('armed');
+        if(dt > R4_GATE_WINDOW){
+          g.missed = true;
+          g.el.classList.remove('armed');
+          g.el.classList.add('missed');
+        }
+      }
+    });
+    r4activeGate = anyActive;
+
+    if(frac < 1){
+      requestAnimationFrame(r4Tick);
+    } else {
+      r4Finish();
+    }
+  }
+
+  gateHitBtn.addEventListener('click', () => {
+    if(!r4activeGate){
+      r4toast.classList.add('show');
+      r4toast.textContent = i18n[currentLang].r4_stumble;
+      return;
+    }
+    r4toast.classList.remove('show');
+    r4activeGate.cleared = true;
+    r4activeGate.el.classList.remove('armed');
+    r4activeGate.el.classList.add('done');
+    hopper.classList.remove('gate-hit');
+    void hopper.offsetWidth;
+    hopper.classList.add('gate-hit');
+    ppPing(700, false);
+    r4activeGate = null;
+  });
+
+  function r4CheerSound(){
+    ensureAudio();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    const t0 = audioCtx.currentTime;
+    playNote(523, 0.14, t0);
+    playNote(659, 0.14, t0 + 0.12);
+    playNote(784, 0.28, t0 + 0.24);
+  }
+
+  function r4Finish(){
+    walker.classList.remove('carve');
+    document.getElementById('medal-hopper').classList.add('show');
+    document.getElementById('medal-walker').classList.add('show');
+    r4CheerSound();
+    setTimeout(() => {
+      document.getElementById('rhyme4-text').innerHTML = i18n[currentLang].r4_success;
+      document.getElementById('calm-reveal').classList.add('show');
+      duckForCard();
+    }, 700);
+  }
+
+  document.getElementById('r4-continue').onclick = () => {
+    show('scene-round5');
+    rampTempo(200);
+    setMusicTheme('round5');
+    tugStart();
+  };
+
+  /* ============ ROUND 5: tug of war, real back-and-forth ============ */
+  const tugFill = document.getElementById('tug-fill');
+  const tugRope = document.getElementById('tug-rope');
+  const tugPullBtn = document.getElementById('tug-pull-btn');
+  const oldRunners = [document.getElementById('tug-old-1'), document.getElementById('tug-old-2')];
+  const youngRunners = [document.getElementById('tug-young-1'), document.getElementById('tug-young-2')];
+  let ropeOffset = 0;
+  const TUG_MAX_OFFSET = 40;
+  const TUG_DURATION = 8500;
+  let tugEnded = false;
+  let tugStarted = false;
+  let tugStartTime = 0;
+  let tugAutoTimer = null;
+  let tugLeanTimer = null;
+
+  function tugUpdateVisual(){
+    tugRope.style.transform = 'translateX(' + ropeOffset + 'px)';
+    const dragX = ropeOffset * 0.3;
+    document.querySelector('.tug-team.old').style.transform = 'translateX(' + dragX + 'px)';
+    document.querySelector('.tug-team.young').style.transform = 'translateX(' + dragX + 'px)';
+  }
+
+  function tugFlash(winSet, loseSet){
+    winSet.forEach(r => { r.classList.remove('strain'); void r.offsetWidth; r.classList.add('lean'); });
+    loseSet.forEach(r => { r.classList.remove('lean'); void r.offsetWidth; r.classList.add('strain'); });
+    clearTimeout(tugLeanTimer);
+    tugLeanTimer = setTimeout(() => {
+      [...winSet, ...loseSet].forEach(r => r.classList.remove('lean', 'strain'));
+    }, 400);
+  }
+
+  tugPullBtn.addEventListener('click', () => {
+    if(tugEnded) return;
+    ropeOffset = Math.max(-TUG_MAX_OFFSET, ropeOffset - 9);
+    tugUpdateVisual();
+    ppPing(300 + Math.random() * 80, false);
+    tugFlash(oldRunners, youngRunners);
+  });
+
+  function tugAutoPull(){
+    if(tugEnded) return;
+    ropeOffset = Math.min(TUG_MAX_OFFSET, ropeOffset + (7 + Math.random() * 9));
+    tugUpdateVisual();
+    ppPing(170 + Math.random() * 40, false);
+    tugFlash(youngRunners, oldRunners);
+    tugAutoTimer = setTimeout(tugAutoPull, 550 + Math.random() * 420);
+  }
+
+  function tugStart(){
+    if(tugStarted) return;
+    tugStarted = true;
+    tugStartTime = performance.now();
+    tugAutoTimer = setTimeout(tugAutoPull, 700);
+    requestAnimationFrame(tugProgress);
+  }
+
+  function tugProgress(now){
+    if(tugEnded) return;
+    const elapsed = now - tugStartTime;
+    const pct = Math.min(100, (elapsed / TUG_DURATION) * 100);
+    tugFill.style.width = pct + '%';
+    if(elapsed >= TUG_DURATION){
+      tugCollapse();
+    } else {
+      requestAnimationFrame(tugProgress);
+    }
+  }
+
+  function tugCollapse(){
+    tugEnded = true;
+    clearTimeout(tugAutoTimer);
+    clearTimeout(tugLeanTimer);
+    tugPullBtn.disabled = true;
+    ppPing(120, false);
+    tugRope.classList.add('snapped');
+    const leftHalf = document.getElementById('rope-half-left');
+    const rightHalf = document.getElementById('rope-half-right');
+    leftHalf.style.opacity = '1';
+    rightHalf.style.opacity = '1';
+    leftHalf.style.setProperty('--flydir', '-50px');
+    rightHalf.style.setProperty('--flydir', '50px');
+    leftHalf.classList.add('fly');
+    rightHalf.classList.add('fly');
+    setTimeout(() => {
+      [...oldRunners, ...youngRunners].forEach(r => r.classList.remove('lean', 'strain'));
+      [...oldRunners, ...youngRunners].forEach(r => r.classList.add('fallen'));
+      ppPing(110, false);
+      setTimeout(() => {
+        document.getElementById('rhyme5-text').innerHTML = i18n[currentLang].r5_success;
+        document.getElementById('calm-reveal5').classList.add('show');
+        duckForCard();
+      }, 900);
+    }, 250);
+  }
+
+  document.getElementById('r5-continue').onclick = () => {
+    show('scene-finish');
+    rampTempo(180);
+    windDownMusic(4500);
+    document.getElementById('finish-score').textContent = score + ' / 5';
+    document.getElementById('finish-poem').innerHTML = i18n[currentLang].finish_poem;
+    r4CheerSound();
+    document.getElementById('win-flash').classList.add('flash-active');
+    const appRect = document.getElementById('app').getBoundingClientRect();
+    spawnConfettiBurst(appRect.width * 0.2, 120);
+    setTimeout(() => spawnConfettiBurst(appRect.width * 0.5, 90), 150);
+    setTimeout(() => spawnConfettiBurst(appRect.width * 0.8, 120), 300);
+    setTimeout(() => document.getElementById('win-flash').classList.remove('flash-active'), 900);
+  };
+
+  document.getElementById('finish-restart').onclick = () => {
+    location.reload();
+  };
+</script>
+
+
+</body>
+</html>
