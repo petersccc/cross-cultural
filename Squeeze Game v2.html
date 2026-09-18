@@ -550,11 +550,14 @@
   .hero-card.hint .hero-label{ animation:hintPulse 1s ease-in-out infinite; }
   @keyframes hintPulse{ 0%,100%{ box-shadow:0 0 0 3px var(--trust), 0 0 14px rgba(46,196,182,.4);} 50%{ box-shadow:0 0 0 4px var(--trust), 0 0 26px rgba(46,196,182,.7);} }
   @keyframes shake{ 0%,100%{ transform:translateX(0); } 20%{ transform:translateX(-8px) rotate(-3deg); } 40%{ transform:translateX(8px) rotate(3deg); } 60%{ transform:translateX(-6px) rotate(-2deg); } 80%{ transform:translateX(6px) rotate(2deg); } }
-  .hero-label{ font-family:'Nunito','Noto Sans SC'; font-weight:800; font-size:12px; color:#fff; background:var(--ink); padding:3px 10px; border-radius:8px; white-space:nowrap; box-shadow:0 3px 6px rgba(38,36,58,.15); margin-bottom:6px; }
+  .hero-label{ font-family:'Nunito','Noto Sans SC'; font-weight:800; font-size:12px; color:#fff; background:var(--ink); padding:3px 10px; border-radius:8px; white-space:nowrap; box-shadow:0 3px 6px rgba(38,36,58,.15); margin-bottom:52px; }
   /* §6 centering fix: the figure's parts are absolutely positioned inside a 32px-wide
      body, but .char2 was stretching to the card's full 80px width, so the figure sat at
      the left edge of its card while the name tag above it was centered — the whole row
      read as shifted left. Give the figure its true 32px box and center that. */
+  /* the figure is scaled 1.7x from its feet, so its head rises ~41px above its 58px box —
+     .hero-label's margin-bottom (52px) is what leaves a clear gap between the name tag and
+     the top of the head. If this scale changes, change that margin with it. */
   .hero-card .char2{ width:32px; height:58px; margin:0 auto; transform:scale(1.7); transform-origin:bottom center; }
   .hero-card{ margin-top:0; }
   .heroes-row{ justify-content:center; width:100%; }
@@ -1422,7 +1425,7 @@
     },
     de:{
       intro_made_by:"Erstellt von Katarina Peters",
-      intro_hook:"Rein in die Klemme – los geht's",
+      intro_hook:"Ein China-Deutschland Kooperationsszenario.<br>Wie schnell rettest du die Zusammenarbeit?",
       intro_enter:"Starten",
       footer_credit:"Peters Cross-Cultural Communication",
       katarina_r1:"Bin gleich da!",
@@ -1434,7 +1437,7 @@
       exit_success_msg:"Danke — schau bald in dein Postfach!",
       s1_text:"<strong>Hier ist die Ausgangslage:</strong> Chinas Exportabhängigkeit wächst. Der Heimatmarkt ist schwach, und Export zählt mehr denn je.",
       s2_text:"Gleichzeitig wächst die Spannung zwischen der EU und China, und die Geduld schwindet auf beiden Seiten.",
-      s3_text:"Beide Seiten spüren den <u>Druck</u>. Oft wirkt es zunächst nur wie ein angespanntes Quartal – bis sich zu spät zeigt, dass das eigentliche Problem in der Zusammenarbeit liegt.",
+      s3_text:"Beide Seiten spüren den Druck. Oft wirkt es zunächst nur wie ein angespanntes Quartal – bis sich zu spät zeigt, dass das eigentliche Problem in der Zusammenarbeit liegt.",
       cap_eu:"die Regeln", cap_cn:"die Exporte",
       next:"Weiter", enter:"Rein in die Klemme",
       round1:"Runde 1 von 5",
@@ -1488,7 +1491,7 @@
     },
     zh:{
       intro_made_by:"由 Katarina Peters 制作",
-      intro_hook:"进入中德合作情境",
+      intro_hook:"进入中德合作情境。<br>你需要多长时间来拯救这次合作?",
       intro_enter:"开始",
       footer_credit:"由 Cross-Cultural Peters 出品",
       katarina_r1:"我马上到!",
@@ -1500,7 +1503,7 @@
       exit_success_msg:"谢谢——请留意你的邮箱!",
       s1_text:"<strong>情况是这样的:</strong>中国对出口的依赖正在加深,国内市场疲软,出口比以往任何时候都更加重要。",
       s2_text:"与此同时,欧中之间的摩擦不断升级,双方的耐心都在消退。",
-      s3_text:"双方都感受到了<u>夹缝</u>般的压力。起初它往往只是看起来像是紧张的一个季度,直到为时已晚才发现,这其实是一个合作问题。",
+      s3_text:"双方都感受到了夹缝般的压力。起初它往往只是看起来像是紧张的一个季度,直到为时已晚才发现,这其实是一个合作问题。",
       cap_eu:"规则", cap_cn:"出口",
       next:"下一步", enter:"进入夹缝",
       round1:"第 1 关,共 5 关",
