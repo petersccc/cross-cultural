@@ -1,0 +1,20 @@
+name = "squeeze-clickup-submit"
+main = "clickup-submit-worker.js"
+compatibility_date = "2026-09-16"
+
+# Secrets never belong in this file or in git. Set the ClickUp token on THIS Worker with:
+#   wrangler secret put CLICKUP_API_TOKEN
+# (secrets are per-Worker, so the check-up Workers' copy doesn't carry over). See README.md
+# for the no-CLI dashboard route.
+
+# Raw backup of every submission. Create the namespace once (dashboard: Storage & Databases
+# -> KV -> Create, or `wrangler kv namespace create SQUEEZE_SUBMISSIONS`) and replace the
+# id below with the one it gives you. The binding name must stay SUBMISSIONS.
+[[kv_namespaces]]
+binding = "SUBMISSIONS"
+id = "REPLACE-WITH-YOUR-KV-NAMESPACE-ID"
+
+[vars]
+# The exact origin(s) the game is served from, comma-separated, e.g. "https://squeeze-game.pages.dev".
+# Leave empty only for a first test — set it before launch.
+ALLOWED_ORIGIN = ""
