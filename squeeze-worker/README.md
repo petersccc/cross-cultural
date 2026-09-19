@@ -1,69 +1,60 @@
-# The Squeeze — going live: Worker + hosting checklist
+# The Squeeze — Worker + hosting checklist
 
-The game can't reach ClickUp from where it lives as a Claude artifact (artifacts are blocked
-from posting to outside servers, and can't see UTM parameters). So it goes live as a normal
-page on **Cloudflare Pages**, and posts its finish-screen form to this **Worker**, which writes
-to the ClickUp "Lead Magnet" list. Same shape as your German/Chinese check-up tools.
+The game can't post to ClickUp from where it lives as a Claude artifact (artifacts are blocked
+from sending data to outside servers). So it goes live as a normal page on **Cloudflare Pages**
+and posts its finish-screen form to a **Worker**, which writes to the ClickUp "Lead Magnet" list.
 
-What lands in ClickUp for each submission (list `901219622537`, "Lead Magnet" in Projekte):
+Each submission becomes a task in list `901219622537` ("Lead Magnet", Projekte):
+title `New Squeeze submission — [Name]`, the confirmed description block, the **E-Mail** field
+filled in, and **Version** = "The Squeeze".
 
-- Task title: `New Squeeze submission — [Name]`
-- Description: the confirmed block (Name / Email / Completed in / Source / Choices / Time per round)
-- Custom fields: **E-Mail** filled in, **Version** = "The Squeeze"
-- A raw backup of the same data in Workers KV, written *before* the ClickUp call.
+## 1. The Worker (already created as `the-squeeze-worker`)
 
-## 1. Deploy the Worker (dashboard, no CLI needed)
+Address: `https://the-squeeze-worker.nachhilfe-kp.workers.dev/`
 
-1. **dash.cloudflare.com** → **Workers & Pages** → **Create** → **Create Worker**. Name it
-   `squeeze-clickup-submit`, click **Deploy**, then **Edit code**, replace everything with the
-   contents of `clickup-submit-worker.js`, and **Deploy**.
-2. **Storage & Databases → KV → Create a namespace** (e.g. `SQUEEZE_SUBMISSIONS`).
-3. Back on the Worker → **Settings → Bindings → Add → KV namespace**. Variable name must be
-   exactly **`SUBMISSIONS`**; pick the namespace from step 2.
-4. Worker → **Settings → Variables and Secrets → Add**:
-   - Type **Secret**, name **`CLICKUP_API_TOKEN`**, value = your ClickUp API token (the same
-     one your German check-up Worker uses — secrets are per Worker, so it has to be added here
-     too). Don't paste it anywhere else.
-   - Type **Text**, name **`ALLOWED_ORIGIN`**, value = the game's address once you have it
-     (step 2 below), e.g. `https://squeeze-game.pages.dev` — no trailing slash. Leave it empty
-     only for a first test.
-5. Copy the Worker's URL (looks like `https://squeeze-clickup-submit.<your-subdomain>.workers.dev`).
+1. Cloudflare dashboard → **Workers & Pages → the-squeeze-worker → Edit code**.
+2. Select **all** the code in the editor, delete it, and paste the **entire** contents of
+   `clickup-submit-worker.js` (about 9.7 KB; the last line is the `json(...)` function).
+   Then **Deploy**.
+3. **Settings → Variables and Secrets → Add**: type **Secret**, name **`CLICKUP_API_TOKEN`**,
+   value = your ClickUp API token (the same one the German check-up Worker uses; secrets are
+   per Worker). Save/deploy.
+4. *(Recommended)* a backup copy of every submission: **Storage & Databases → KV → Create a
+   namespace** (e.g. `SQUEEZE_SUBMISSIONS`), then Worker → **Settings → Bindings → Add → KV
+   namespace**, variable name exactly **`SUBMISSIONS`**.
+5. **Check it:** open the Worker's address in a browser. You should see:
+   `{"ok":true,"service":"the-squeeze-submit","version":"2026-09-19-b","bindings":{"kvSUBMISSIONS":true,"secretCLICKUP_API_TOKEN":true},"originLocked":false}`
+   - `error code: 1101` → the pasted code is incomplete (paste the whole file again).
+   - `secretCLICKUP_API_TOKEN: false` → step 3 isn't done on *this* Worker.
+   - `kvSUBMISSIONS: false` → step 4 not done (submissions still reach ClickUp, just without a
+     backup copy).
 
-## 2. Put the game on Cloudflare Pages
+## 2. The game on Cloudflare Pages
 
-1. Open **`../squeeze-pages/config.js`** in Notepad (it's a tiny file — *don't* open
-   `index.html`, it's huge) and fill in the two values, then save:
-   - `workerUrl` — the Worker address from step 1.5.
-   - `privacyUrl` — the final privacy-policy link (the consent checkbox needs it before
-     launch; until it's set the "privacy policy" link does nothing).
-2. **Workers & Pages → Create → Pages → Upload assets**. Name the project (e.g. `squeeze-game`).
-3. Upload the whole folder `../squeeze-pages` (`index.html` + `config.js`) and **Deploy**.
-4. Take the resulting `https://<project>.pages.dev` address back to step 1.4 (`ALLOWED_ORIGIN`).
-   If you later attach your own domain, add that origin too, comma-separated.
-
-When the game is updated later, only `index.html` changes — keep your own `config.js` and
-just re-upload the folder, so your two settings aren't overwritten.
+1. `../squeeze-pages/config.js` already has the Worker address. Add the `privacyUrl` when the
+   privacy policy exists.
+2. **Workers & Pages → Create → Pages → Upload assets**, upload the whole `../squeeze-pages`
+   folder (`index.html` + `config.js`), Deploy. To update later, upload the folder again.
+3. Once you have the game's address (e.g. `https://thesqueeze.pages.dev`), lock the Worker to it
+   before launch: Worker → Settings → Variables → Text variable **`ALLOWED_ORIGIN`** = that
+   address, no trailing slash. **Left empty, any website can post into your ClickUp list** —
+   fine for testing, not for launch.
 
 ## 3. Tracking links
 
-Tag the links you share, e.g.
-`https://squeeze-game.pages.dev/?utm_source=linkedin&utm_medium=post&utm_campaign=sept-launch`
-The `utm_source` and `utm_campaign` show up in the task's "Source:" line; all `utm_*` values
-are kept in the KV backup.
+`https://<your-game-address>/?utm_source=linkedin&utm_medium=post&utm_campaign=sept-launch`
+shows up in the task's "Source:" line; all `utm_*` values are kept in the KV backup.
 
-## 4. Test before sharing
+## 4. If the form says "Something went wrong sending your details"
 
-Open the Pages address, play (or use the early-exit link), fill the form, and check the Lead
-Magnet list for the new task. If the game shows "Something went wrong sending your details",
-open the browser console (F12): it prints the exact reason (`workerUrl is empty`, a 403 =
-`ALLOWED_ORIGIN` doesn't match the page's address, a 500 = a missing binding/secret).
-
-Records that reached the backup but not ClickUp show `"status":"clickup_failed"` in KV.
+Open the browser console (F12). The game prints the exact reason. Typical ones:
+`Failed to fetch` = the Worker crashed or isn't reachable (check step 1.5);
+`workerUrl is empty` = you're on the Claude artifact or an upload without `config.js`;
+`Worker replied 403` = `ALLOWED_ORIGIN` doesn't match the page's address;
+`Worker replied 502 — Could not save the submission anywhere…` = neither the secret nor KV is
+set on the Worker (the message says which).
 
 ## Notes
 
-- The Worker can't be deployed from Claude's side (no deploy access from there); this
-  checklist is the hand-off.
-- Nothing about a player is sent anywhere unless they submit name + email and tick the consent
-  box; choices and timings stay in their browser until then.
-- The KV backup has no expiry. Decide the retention period when the privacy policy is final.
+- Nothing about a player is sent anywhere unless they submit name + email and tick the consent box.
+- The KV backup has no expiry; decide the retention period when the privacy policy is final.
