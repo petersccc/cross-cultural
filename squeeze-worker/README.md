@@ -23,7 +23,7 @@ Address: `https://the-squeeze-worker.nachhilfe-kp.workers.dev/`
    namespace** (e.g. `SQUEEZE_SUBMISSIONS`), then Worker → **Settings → Bindings → Add → KV
    namespace**, variable name exactly **`SUBMISSIONS`**.
 5. **Check it:** open the Worker's address in a browser. You should see:
-   `{"ok":true,"service":"the-squeeze-submit","version":"2026-09-19-b","bindings":{"kvSUBMISSIONS":true,"secretCLICKUP_API_TOKEN":true},"originLocked":false}`
+   `{"ok":true,"service":"the-squeeze-submit","version":"2026-09-20-c-full","bindings":{"kvSUBMISSIONS":true,"secretCLICKUP_API_TOKEN":true},"originLocked":false}`
    - `error code: 1101` → the pasted code is incomplete (paste the whole file again).
    - `secretCLICKUP_API_TOKEN: false` → step 3 isn't done on *this* Worker.
    - `kvSUBMISSIONS: false` → step 4 not done (submissions still reach ClickUp, just without a
