@@ -660,6 +660,7 @@
   .head2.photo-head .katarina-photo{ position:absolute; inset:0; }
   /* §5 correction: a plain head-only photo crop beside every reveal message — no
      cartoon body, anywhere. Same .katarina-photo circle used by the opening avatar. */
+  .reveal-name{ text-align:center; font-family:'Nunito','Noto Sans SC'; font-weight:700; font-size:11px; color:var(--text-black); margin:-6px 0 10px; }
   .reveal-photo{ width:44px; height:44px; margin:0 auto 10px; border:2px solid #fff; box-shadow:0 4px 10px rgba(38,36,58,.15); }
 
   /* ===================== BRAND MARKS ===================== */
@@ -668,13 +669,15 @@
   .brand-footer{ position:absolute; left:0; right:0; bottom:8px; text-align:center; font-family:'Nunito','Noto Sans SC'; font-weight:800; font-size:11px; color:var(--ink); letter-spacing:.02em; z-index:2; pointer-events:none; }
 
   /* ===================== INTRO SCENE (new opening screen, §2) ===================== */
-  #scene-intro{ padding-top:56px; }
+  #scene-intro{ padding-top:28px; }
+  .intro-role{ margin:0 auto 8px; max-width:300px; font-family:'Nunito','Noto Sans SC'; font-weight:600; font-size:13px; line-height:1.4; color:var(--text-black); }
+  .intro-tag{ margin:0 0 22px; font-family:'Nunito','Noto Sans SC'; font-weight:800; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--olive); }
   .intro-avatar-wrap{ width:96px; height:96px; margin:0 auto 12px; }
   .intro-avatar-wrap .katarina-photo{ width:100%; height:100%; border:3px solid #fff; box-shadow:0 8px 20px rgba(38,36,58,.18); }
   .intro-made-by{ margin:0 0 14px; font-size:14px; font-weight:700; color:var(--text-black); }
   #scene-intro .headline{ margin-bottom:10px; }
-  #scene-intro .sub{ margin-bottom:26px; }
-  #intro-enter{ margin-top:4px; margin-bottom:22px; }
+  #scene-intro .sub{ margin-bottom:12px; }
+  #intro-enter{ margin-top:14px; margin-bottom:34px; }
   .brand-footer-static{ font-size:12px; color:var(--text-black); }
 
   /* ===================== EXIT SCENE ===================== */
@@ -866,6 +869,8 @@
     <p class="caption-italic intro-made-by" data-i18n="intro_made_by">Made by Katarina Peters</p>
     <h1 class="headline">The Squeeze</h1>
     <p class="sub" data-i18n="intro_hook">Enter the China–Germany cooperation scenario</p>
+    <p class="intro-role" data-i18n="intro_role"></p>
+    <p class="intro-tag" data-i18n="intro_tag"></p>
     <button class="btn" id="intro-enter" data-i18n="intro_enter">Start</button>
     <p class="caption-italic brand-footer-static" data-i18n="footer_credit">Peters Cross-Cultural Communication</p>
   </section>
@@ -1010,7 +1015,7 @@
     </div>
 
     <h1 class="headline" data-i18n="hero_h">Pick your hero.</h1>
-    <p class="sub" data-i18n="hero_p">While the negotiation between the teams is in process, pick your hero who will help solve the misunderstanding happening.</p>
+    <p class="sub" data-i18n="hero_p">While the negotiation between the teams is in process, pick your hero who would help solve the misunderstanding happening.</p>
     <div class="toast" id="toast"></div>
 
     <div class="heroes-row">
@@ -1054,7 +1059,7 @@
   <div id="modal">
     <div class="modal-card">
       <span class="modal-star s1">✦</span><span class="modal-star s2">✧</span><span class="modal-star s3">✦</span>
-      <div class="reveal-photo katarina-photo"></div>
+      <div class="reveal-photo katarina-photo"></div><div class="reveal-name">Katarina Peters</div>
       <p class="rhyme" id="rhyme-text"></p>
       <button class="btn" id="modal-continue" data-i18n="modal_btn">Onward</button>
       <div class="redo-link" id="redo-1" data-i18n="redo_link">Not happy? Try this round again</div>
@@ -1128,7 +1133,7 @@
   <div id="modal2">
     <div class="modal-card">
       <span class="modal-star s1">✦</span><span class="modal-star s2">✧</span><span class="modal-star s3">✦</span>
-      <div class="reveal-photo katarina-photo"></div>
+      <div class="reveal-photo katarina-photo"></div><div class="reveal-name">Katarina Peters</div>
       <p class="rhyme" id="rhyme2-text"></p>
       <button class="btn" id="modal2-continue" data-i18n="modal2_btn">Onward</button>
       <div class="redo-link" id="redo-2" data-i18n="redo_link">Not happy? Try this round again</div>
@@ -1151,7 +1156,7 @@
       <div class="pp-table"></div>
       <div class="pp-leg l"></div>
       <div class="pp-leg r"></div>
-      <div class="pp-sign"><div class="pp-crown"></div><span class="pp-sparkle sp1">✦</span><span class="pp-sparkle sp2">✧</span><span class="pp-sparkle sp3">✦</span>Book of Rules</div>
+      <div class="pp-sign"><div class="pp-crown"></div><span class="pp-sparkle sp1">✦</span><span class="pp-sparkle sp2">✧</span><span class="pp-sparkle sp3">✦</span><span data-i18n="book_of_rules">Book of Rules</span></div>
       <div class="pp-net" id="pp-net">
         <div class="pp-net-left" id="pp-net-left"></div>
         <div class="pp-net-right" id="pp-net-right"></div>
@@ -1196,7 +1201,7 @@
   <div id="modal3">
     <div class="modal-card">
       <span class="modal-star s1">✦</span><span class="modal-star s2">✧</span><span class="modal-star s3">✦</span>
-      <div class="reveal-photo katarina-photo"></div>
+      <div class="reveal-photo katarina-photo"></div><div class="reveal-name">Katarina Peters</div>
       <p class="rhyme" id="rhyme3-text"></p>
       <button class="btn" id="modal3-continue" data-i18n="modal3_btn">Onward</button>
       <div class="redo-link" id="redo-3" data-i18n="redo_link">Not happy? Try this round again</div>
@@ -1208,7 +1213,7 @@
     <div class="eyebrow" data-i18n="round4">Round 4 of 5</div>
     <h1 class="headline" data-i18n="r4_h">Two different obstacles.</h1>
     <p class="sub" data-i18n="r4_p">Two teams face two different obstacles. Help your team reach its goal, whichever way works for them.</p>
-    <div class="countdown-sign" id="countdown-sign">10</div>
+    <div class="countdown-sign" id="countdown-sign">0</div>
 
     <div class="lanes-stage" id="lanes-stage">
       <div class="lane gate-lane">
@@ -1259,7 +1264,7 @@
     <div class="toast" id="r4-toast"></div>
 
     <div class="calm-reveal" id="calm-reveal">
-      <div class="reveal-photo katarina-photo"></div>
+      <div class="reveal-photo katarina-photo"></div><div class="reveal-name">Katarina Peters</div>
       <p class="rhyme" id="rhyme4-text"></p>
       <button class="btn" id="r4-continue" data-i18n="modal4_btn">Onward</button>
       <div class="redo-link" id="redo-4" data-i18n="redo_link">Not happy? Try this round again</div>
@@ -1332,7 +1337,7 @@
     <button class="btn" id="tug-pull-btn" data-i18n="r5_pull">Pull!</button>
 
     <div class="calm-reveal" id="calm-reveal5">
-      <div class="reveal-photo katarina-photo"></div>
+      <div class="reveal-photo katarina-photo"></div><div class="reveal-name">Katarina Peters</div>
       <p class="rhyme" id="rhyme5-text"></p>
       <button class="btn" id="r5-continue" data-i18n="modal5_btn">Finish</button>
       <div class="redo-link" id="redo-5" data-i18n="redo_link">Not happy? Try this round again</div>
@@ -1415,6 +1420,9 @@
       intro_made_by:"Made by Katarina Peters",
       intro_hook:"Enter the China–Germany cooperation scenario.<br>How long will it take you to save it?",
       intro_enter:"Start",
+      book_of_rules:"Book of Rules",
+      intro_role:"Understanding cultural differences between German and Chinese companies, and turning them into successful cooperation.",
+      intro_tag:"Training and consulting",
       footer_credit:"Peters Cross-Cultural Communication",
       katarina_r1:"Be right there!",
       katarina_r2:"You rock!",
@@ -1431,7 +1439,7 @@
       round1:"Round 1 of 5",
       sign_text:"THE ISSUE",
       hero_h:"Pick your hero.",
-      hero_p:"While the negotiation between the teams is in process, pick your hero who will help solve the misunderstanding happening.",
+      hero_p:"While the negotiation between the teams is in process, pick your hero who would help solve the misunderstanding happening.",
       hero_trust:"Trust", hero_timing:"Timing", hero_urgency:"Urgency",
       toast_wrong:"Not quite. The issue just got bigger.",
       rhyme:"When negotiations get heated, we often think that speaking loud and clear, or acting fast, will solve the situation. Being clear and proactive can help, but the trust built within the team is the biggest advantage we have.",
@@ -1487,6 +1495,9 @@
       intro_made_by:"Erstellt von Katarina Peters",
       intro_hook:"Ein China-Deutschland Kooperationsszenario.<br>Wie schnell rettest du die Zusammenarbeit?",
       intro_enter:"Starten",
+      book_of_rules:"Regelbuch",
+      intro_role:"Kulturelle Unterschiede zwischen deutschen und chinesischen Unternehmen verstehen und in erfolgreiche Kooperationen verwandeln.",
+      intro_tag:"Training und Beratung",
       footer_credit:"Peters Cross-Cultural Communication",
       katarina_r1:"Bin gleich da!",
       katarina_r2:"Du schaffst das!",
@@ -1498,7 +1509,7 @@
       s1_text:"<strong>Hier ist die Ausgangslage:</strong> Chinas Exportabhängigkeit wächst. Der Heimatmarkt ist schwach, und Export zählt mehr denn je.",
       s2_text:"Gleichzeitig wächst die Spannung zwischen der EU und China, und die Geduld schwindet auf beiden Seiten.",
       s3_text:"Beide Seiten spüren den Druck. Oft wirkt es zunächst nur wie ein angespanntes Quartal – bis sich zu spät zeigt, dass das eigentliche Problem in der Zusammenarbeit liegt.",
-      cap_eu:"die Regeln", cap_cn:"die Exporte",
+      cap_eu:"Regeln", cap_cn:"Exporte",
       next:"Weiter", enter:"Rein in die Klemme",
       round1:"Runde 1 von 5",
       sign_text:"DAS PROBLEM",
@@ -1510,8 +1521,8 @@
       modal_btn:"Weiter",
       redo_link:"Nicht zufrieden? Runde nochmal versuchen",
       round2:"Runde 2 von 5",
-      r2_h:"Statte deine Mitarbeiterin aus.",
-      r2_p:"Im Verlauf der Verhandlung musst du eine Mitarbeiterin oder einen Mitarbeiter ins Ausland schicken, um die Interessen deines Unternehmens zu vertreten. Mit welchen Fähigkeiten stattest du sie aus?",
+      r2_h:"Statte deine Mitarbeitenden aus.",
+      r2_p:"Im Verlauf der Verhandlung musst du Mitarbeitende ins Ausland schicken, um die Interessen deines Unternehmens zu vertreten. Mit welchen Fähigkeiten stattest du sie aus?",
       cap_expertise:"Fachwissen", cap_experience:"Erfahrung", cap_language:"Sprache",
       stars_left_n:" Sterne übrig", stars_left_zero:"Alle vergeben. Bereit.",
       send_btn:"Losschicken",
@@ -1544,21 +1555,24 @@
       r5_p:"In diesem Teil der Zusammenarbeit prallen Generationen aufeinander. Zieh am Seil und hilf beiden Seiten, eine gemeinsame Basis zu finden.",
       r5_pull:"Ziehen!",
       modal5_btn:"Fertig",
-      r5_success:"Jede Generation bringt ihre eigene Perspektive und ihre eigenen Stärken mit. Es kann sich oft anfühlen, als stünden sie sich gegenseitig im Weg, doch das eigentliche Ziel ist, voneinander zu lernen, offen zu bleiben und diese Stärken gemeinsam zu nutzen.",
+      r5_success:"Jede Generation bringt ihre eigene Perspektive und ihre eigenen Stärken mit. Es kann sich oft anfühlen, als stünden sie sich gegenseitig im Weg. Das eigentliche Ziel ist jedoch, voneinander zu lernen, offen zu bleiben und diese Stärken gemeinsam zu nutzen.",
       finish_message:"Ein interkulturelles Team zu führen und dabei die Interessen des Unternehmens im Blick zu behalten, ist nichts für schwache Nerven. Und selbst wenn es sich anfühlt, als wäre schon ein Höhepunkt erreicht, gibt es meist noch ein paar weitere Blickwinkel, die sich lohnen. Wenn du deine persönliche Checkliste für die Führung interkultureller Teams möchtest, hinterlasse deine E-Mail-Adresse, und ich schicke sie dir zu.",
       finish_thanks:"Danke fürs Mitspielen!",
-      finish_cta:"Hol dir deine Check-up-Liste",
-      early_exit:"Ich bin bereit für meine persönliche Check-up-Liste",
+      finish_cta:"Hol dir deine Checkliste",
+      early_exit:"Ich bin bereit für meine persönliche Checkliste",
       form_name_placeholder:"Dein Name",
       form_consent:"Ich stimme der <a href=\"#\" class=\"privacy-link\">Datenschutzerklärung</a> zu.",
       form_sending:"Wird gesendet…",
       form_error_send:"Beim Senden ist etwas schiefgelaufen. Bitte versuche es gleich noch einmal.",
-      thanks_message:"Du bekommst deine Check-up-Liste in Kürze!"
+      thanks_message:"Du bekommst deine Checkliste in Kürze!"
     },
     zh:{
       intro_made_by:"由 Katarina Peters 制作",
       intro_hook:"进入中德合作情境。<br>你需要多长时间来拯救这次合作?",
       intro_enter:"开始",
+      book_of_rules:"规则手册",
+      intro_role:"理解中德企业间的文化差异,并将其转化为成功的合作。",
+      intro_tag:"培训与咨询",
       footer_credit:"由 Cross-Cultural Peters 出品",
       katarina_r1:"我马上到!",
       katarina_r2:"你能行!",
@@ -1669,7 +1683,10 @@
   const bgMusic = document.getElementById('bg-music');
   const MUSIC_RATE = 1;       // normal speed, fixed for the whole game
   const MUSIC_VOLUME = 0.12;  // the one flat, very quiet volume
+  // §13: the mute choice survives "Play again" (a full reload); storage may be blocked, so guard it
   let musicOn = true;
+  try { if(localStorage.getItem("squeezeMusic") === "off") musicOn = false; } catch(e) {}
+  (function(){ const b = document.getElementById("music-toggle"); b.classList.toggle("on", musicOn); b.textContent = musicOn ? "♪ On" : "♪ Music"; })();
   let musicVolTimer = null;
   try { bgMusic.playbackRate = MUSIC_RATE; bgMusic.defaultPlaybackRate = MUSIC_RATE; bgMusic.volume = MUSIC_VOLUME; } catch(e) {}
 
@@ -1712,6 +1729,7 @@
     musicOn = !musicOn;
     this.classList.toggle('on', musicOn);
     this.textContent = musicOn ? '♪ On' : '♪ Music';
+    try { localStorage.setItem("squeezeMusic", musicOn ? "on" : "off"); } catch(e) {}
     if(musicOn) startMusic(); else stopMusic();
   };
   // browsers block autoplay until a gesture — start on the player's first tap/click
@@ -2211,8 +2229,37 @@
   }
   let ppWindowTimer = null;
 
+  /* §8 — a real contest, first side to PP_WIN_SCORE points wins. Either side can now miss:
+     - the player misses if the ball reaches them and they haven't hit it;
+     - the opponent returns reliably early in a rally, then gets a growing chance to miss as
+       the rally speeds up. That chance is tied to the rally's existing speed-up (the ball
+       already gets faster with every successful volley), not an arbitrary roll on top.
+     A rally starts slow again after every point. */
+  const PP_WIN_SCORE = 10;
+  let ppRallyOver = false;   // true between the end of a point and the next serve
+  function ppSideOpp(){ return ppPlayerSide === 'left' ? 'right' : 'left'; }
+  function ppScoreOf(side){ return side === 'left' ? ppScoreLeft : ppScoreRight; }
+  // volley = how many times the player has returned the ball in this rally. The curve
+  // (how fast the chance grows and its cap) is a judgment call to playtest together.
+  function ppOpponentMissChance(volley){
+    if(volley <= 1) return 0;
+    return Math.min(0.7, (volley - 1) * 0.2);
+  }
+
+  function ppStartRally(){
+    if(ppEnded || gameAborted) return;
+    ppVolley = 0;
+    ppDuration = 1350;
+    ppRallyOver = false;
+    ppBall.style.transition = 'none';
+    ppBall.style.bottom = '135px';
+    ppBall.style.display = 'block';
+    void ppBall.offsetWidth;
+    ppScheduleIncoming();
+  }
+
   function ppScheduleIncoming(){
-    if(ppEnded) return;
+    if(ppEnded || ppRallyOver) return;
     ppPositionBall(ppOpponentX());
     ppHitAvailable = false;
     setTimingButton(hitBtn, false, 'pp_wait', 'pp_hit');
@@ -2221,14 +2268,50 @@
     requestAnimationFrame(() => { ppBall.style.left = ppPlayerX() + 'px'; });
     clearTimeout(ppWindowTimer);
     ppWindowTimer = setTimeout(() => {
-      if(ppEnded) return;
+      if(ppEnded || ppRallyOver) return;
       ppHitAvailable = true;
       setTimingButton(hitBtn, true, 'pp_wait', 'pp_hit');
     }, Math.round(ppDuration * 0.55));
     clearTimeout(ppLegTimer);
     ppLegTimer = setTimeout(() => {
-      if(!ppEnded) ppScheduleIncoming();
+      // the ball has reached the player and wasn't returned: the opponent takes the point
+      if(!ppEnded && !ppRallyOver) ppPointEnd(ppSideOpp());
     }, ppDuration + 40);
+  }
+
+  // the side that just missed sees the ball run out past them, then the next rally is served
+  function ppBallMissedAway(side){
+    ppPing(140, false);
+    ppBall.style.animation = 'none';
+    ppBall.style.transition = 'left .7s cubic-bezier(.3,.1,.5,1), bottom .7s cubic-bezier(.55,0,.85,.35)';
+    ppBall.style.left = (side === 'left' ? -40 : ppStage.clientWidth + 40) + 'px';
+    ppBall.style.bottom = '20px';
+    setTimeout(() => { ppBall.style.display = 'none'; }, 760);
+  }
+
+  function ppPointEnd(winnerSide){
+    ppRallyOver = true;
+    clearTimeout(ppWindowTimer);
+    clearTimeout(ppLegTimer);
+    ppHitAvailable = false;
+    setTimingButton(hitBtn, false, 'pp_wait', 'pp_hit');
+    const missSide = winnerSide === 'left' ? 'right' : 'left';
+    ppBumpScore(winnerSide);
+    if(ppScoreOf(winnerSide) >= PP_WIN_SCORE){
+      // the point that decides the match: the ball-fall-and-roll ending plays on whichever
+      // side just missed it, mirrored for the left or the right
+      ppEnded = true;
+      hitBtn.style.display = 'none';
+      const missEl = document.getElementById('pp-player-' + missSide);
+      missEl.classList.add('sad-watch');
+      ppBallFallSequence(missSide, () => {
+        missEl.classList.remove('sad-watch');
+        ppMatchEnd();
+      });
+      return;
+    }
+    ppBallMissedAway(missSide);
+    setTimeout(ppStartRally, 1300);
   }
 
   function ppBumpScore(side){
@@ -2244,34 +2327,24 @@
     ppBall.style.transition = 'left ' + ppDuration + 'ms linear';
     ppBall.style.animation = 'ballArc ' + ppDuration + 'ms ease-in-out';
     requestAnimationFrame(() => { ppBall.style.left = ppOpponentX() + 'px'; });
-    setTimeout(() => {
-      if(ppEnded) return;
-      ppPing(520, false);
-      const opponentSide = ppPlayerSide === 'left' ? 'right' : 'left';
-      ppBumpScore(opponentSide);
-      ppSwing(opponentSide);
-      if(ppVolley >= 4){
-        ppNetFail();
-      } else {
-        ppScheduleIncoming();
+    ppLegTimer = setTimeout(() => {
+      if(ppEnded || ppRallyOver || gameAborted) return;
+      const opponentSide = ppSideOpp();
+      if(Math.random() < ppOpponentMissChance(ppVolley)){
+        // the rally has sped up past what the opponent can handle: the player takes the point
+        ppPointEnd(ppPlayerSide);
+        return;
       }
+      ppPing(520, false);
+      ppSwing(opponentSide);
+      ppScheduleIncoming();
     }, ppDuration);
   }
 
-  function ppNetFail(){
-    ppEnded = true;
-    hitBtn.style.display = 'none';
-    document.getElementById('pp-player-' + ppPlayerSide).classList.add('sad-watch');
-    ppBallFallSequence(() => {
-      document.getElementById('pp-player-' + ppPlayerSide).classList.remove('sad-watch');
-      ppMatchEnd();
-    });
-  }
-
-  function ppBallFallSequence(onDone){
+  function ppBallFallSequence(side, onDone){
     setTimingButton(hitBtn, false, 'pp_wait', 'pp_hit');
     const netX = ppStage.clientWidth / 2;
-    const dropX = ppPlayerX();
+    const dropX = side === 'left' ? ppLeftX() : ppRightX();
     ppPing(140, false);
     document.getElementById('pp-net').classList.add('wobble');
     ppBall.style.animation = 'none';
@@ -2286,7 +2359,7 @@
         ppBall.style.transition = 'bottom .13s ease-in';
         ppBall.style.bottom = '58px';
         setTimeout(() => {
-          const floorX = dropX + (ppPlayerSide === 'left' ? -14 : 14);
+          const floorX = dropX + (side === 'left' ? -14 : 14);
           ppBall.style.transition = 'left .3s ease-out, bottom .34s cubic-bezier(.55,0,.85,.35)';
           ppBall.style.left = floorX + 'px';
           ppBall.style.bottom = '20px';
@@ -2298,7 +2371,7 @@
               ppBall.style.transition = 'bottom .1s ease-in';
               ppBall.style.bottom = '20px';
               setTimeout(() => {
-                const rollX = ppPlayerSide === 'left' ? -40 : ppStage.clientWidth + 40;
+                const rollX = side === 'left' ? -40 : ppStage.clientWidth + 40;
                 ppBall.style.transition = 'left 3.4s cubic-bezier(.25,.1,.4,1)';
                 ppBall.style.animation = 'ballRoll 3.4s linear';
                 ppBall.style.left = rollX + 'px';
@@ -2345,7 +2418,6 @@
     clearTimeout(ppLegTimer);
     ppPing(760, true);
     ppSwing(ppPlayerSide);
-    ppBumpScore(ppPlayerSide);
     ppVolley++;
     ppDuration = Math.max(650, ppDuration - 60);
     ppReturnLeg();
@@ -2363,7 +2435,7 @@
       document.getElementById('pp-player-' + ppPlayerSide).appendChild(tag);
       ppBall.style.display = 'block';
       rampTempo(190);
-      ppScheduleIncoming();
+      ppStartRally();
     });
   });
 
@@ -2460,54 +2532,41 @@
 
   const countdownSign = document.getElementById('countdown-sign');
 
+  /* §9 (reversed): the player's skier no longer runs on the clock. It advances toward the
+     next obstacle, stops in front of it, and only carries on after a correctly timed jump.
+     A missed window = stumble, no progress; the window then re-opens shortly after, so
+     nobody can get stuck. The other lane still runs on its own schedule. */
+  const R4_PLAYER_WINDOW = 900;   // ms the jump button is live at an obstacle
+  const R4_RETRY_GAP = 650;       // ms of red button before the same obstacle opens again
+  let r4Pf = 0;                   // the player skier's progress along the lane, 0..1
+  let r4State = 'run';            // 'run' | 'open' | 'gap'
+  let r4StateAt = 0;
+  let r4LastNow = 0;
+  let r4Done = false;
+
+  function r4PlaceRunner(runner, frac, isTop){
+    const laneW = lanesStage.clientWidth - 30;
+    runner.style.left = (frac * laneW) + 'px';
+    runner.style.top = (39 + R4_AMPLITUDE + (isTop ? r4WaveY(frac, 0) : r4FreeWaveY(frac)) - 20) + 'px';
+  }
+
   function r4Tick(now){
     if(gameAborted) return;   // the player left for the check-up list mid-run
+    if(!r4LastNow) r4LastNow = now;
+    const dt = Math.min(100, now - r4LastNow);
+    r4LastNow = now;
     const elapsed = now - r4startTime;
-    const frac = Math.min(1, elapsed / R4_DURATION);
-    const laneW = lanesStage.clientWidth - 30;
+    countdownSign.textContent = Math.floor(elapsed / 1000);   // count-up: the run has no fixed length any more
 
-    const secondsLeft = Math.max(0, Math.ceil((R4_DURATION - elapsed) / 1000));
-    countdownSign.textContent = secondsLeft;
+    const playerIsTop = r4PlayerLane === 'top';
+    const playerObstacles = playerIsTop ? r4TopObstacles : r4BottomObstacles;
+    const autoObstacles = playerIsTop ? r4BottomObstacles : r4TopObstacles;
+    const autoRunner = playerIsTop ? walker : hopper;
+    const playerRunner = playerIsTop ? hopper : walker;
 
-    const hx = frac * laneW;
-    const hy = 39 + R4_AMPLITUDE + r4WaveY(frac, 0) - 20;
-    hopper.style.left = hx + 'px';
-    hopper.style.top = hy + 'px';
-
-    const wx = frac * laneW;
-    const wy = 39 + R4_AMPLITUDE + r4FreeWaveY(frac) - 20;
-    walker.style.left = wx + 'px';
-    walker.style.top = wy + 'px';
-
-    const playerObstacles = r4PlayerLane === 'top' ? r4TopObstacles : r4BottomObstacles;
-    const autoObstacles = r4PlayerLane === 'top' ? r4BottomObstacles : r4TopObstacles;
-    const autoRunner = r4PlayerLane === 'top' ? walker : hopper;
-    const playerRunner = r4PlayerLane === 'top' ? hopper : walker;
-
-    // player-controlled lane: manage the jump window
-    let anyActive = null;
-    playerObstacles.forEach(g => {
-      if(g.cleared || g.missed) return;
-      const dt = elapsed - g.time;
-      if(Math.abs(dt) <= R4_WINDOW){
-        anyActive = g;
-        g.el.classList.add('armed');
-      } else {
-        g.el.classList.remove('armed');
-        if(dt > R4_WINDOW){
-          g.missed = true;
-          g.el.classList.remove('armed');
-          g.el.classList.add('missed');
-          r4Stumble(playerRunner);
-        }
-      }
-    });
-    r4ActiveObstacle = anyActive;
-    // §9: same waiting -> go pattern as Round 3's Hit! — red while waiting, green and
-    // pulsing only during the real window when a press will count
-    setTimingButton(gateHitBtn, !!anyActive, 'pp_wait', 'r4_hitbtn');
-
-    // other lane: clears its own obstacles automatically, right on time
+    // the other lane: fixed schedule, clears its own obstacles right on time
+    const autoFrac = Math.min(1, elapsed / R4_DURATION);
+    r4PlaceRunner(autoRunner, autoFrac, !playerIsTop);
     autoObstacles.forEach(g => {
       if(g.cleared) return;
       if(elapsed >= g.time){
@@ -2517,10 +2576,41 @@
       }
     });
 
-    if(frac < 1){
-      requestAnimationFrame(r4Tick);
-    } else {
+    // the player's lane
+    const next = playerObstacles.find(g => !g.cleared);
+    if(!r4Done){
+      if(r4State === 'run'){
+        const target = next ? next.frac : 1;
+        r4Pf = Math.min(target, r4Pf + dt / R4_DURATION);
+        if(r4Pf >= target){
+          if(next){ r4State = 'open'; r4StateAt = now; }
+          else { r4Done = true; }
+        }
+      } else if(r4State === 'open'){
+        if(now - r4StateAt > R4_PLAYER_WINDOW){
+          // window ran out: stumble in place, then the same obstacle opens again
+          if(next) next.el.classList.remove('armed');
+          r4Stumble(playerRunner);
+          r4State = 'gap'; r4StateAt = now;
+        }
+      } else if(r4State === 'gap'){
+        if(now - r4StateAt > R4_RETRY_GAP){ r4State = 'open'; r4StateAt = now; }
+      }
+    }
+    r4PlaceRunner(playerRunner, r4Pf, playerIsTop);
+
+    const live = !r4Done && r4State === 'open' && !!next;
+    if(live) next.el.classList.add('armed');
+    r4ActiveObstacle = live ? next : null;
+    // §9: same waiting -> go pattern as Round 3's Hit! — red while waiting, green and
+    // pulsing only during the real window when a press will count
+    setTimingButton(gateHitBtn, live, 'pp_wait', 'r4_hitbtn');
+
+    // finish once the player's skier is home; the other lane waits at the line if it got there first
+    if(r4Done && autoFrac >= 1){
       r4Finish();
+    } else {
+      requestAnimationFrame(r4Tick);
     }
   }
 
@@ -2538,6 +2628,7 @@
     r4Jump(playerRunner);
     ppPing(700, false);
     r4ActiveObstacle = null;
+    r4State = 'run';
     setTimingButton(gateHitBtn, false, 'pp_wait', 'r4_hitbtn');
   });
 
