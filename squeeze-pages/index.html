@@ -670,14 +670,16 @@
 
   /* ===================== INTRO SCENE (new opening screen, §2) ===================== */
   #scene-intro{ padding-top:28px; }
-  .intro-role{ margin:0 auto 8px; max-width:300px; font-family:'Nunito','Noto Sans SC'; font-weight:600; font-size:13px; line-height:1.4; color:var(--text-black); }
-  .intro-tag{ margin:0 0 22px; font-family:'Nunito','Noto Sans SC'; font-weight:800; font-size:12px; letter-spacing:.06em; text-transform:uppercase; color:var(--olive); }
   .intro-avatar-wrap{ width:96px; height:96px; margin:0 auto 12px; }
   .intro-avatar-wrap .katarina-photo{ width:100%; height:100%; border:3px solid #fff; box-shadow:0 8px 20px rgba(38,36,58,.18); }
   .intro-made-by{ margin:0 0 14px; font-size:14px; font-weight:700; color:var(--text-black); }
   #scene-intro .headline{ margin-bottom:10px; }
-  #scene-intro .sub{ margin-bottom:12px; }
-  #intro-enter{ margin-top:14px; margin-bottom:34px; }
+  #scene-intro .sub{ font-size:15px; line-height:1.4; margin-bottom:6px; }
+  /* description block: one font, one size, italic — secondary to the tagline above; sits below Start */
+  .intro-role, .intro-tag{ font-family:'Nunito','Noto Sans SC'; font-style:italic; font-size:12px; line-height:1.4; color:var(--text-black); }
+  .intro-role{ margin:0 auto 6px; max-width:300px; font-weight:600; }
+  .intro-tag{ margin:0 0 52px; font-weight:800; }
+  #intro-enter{ margin-top:16px; margin-bottom:22px; }
   .brand-footer-static{ font-size:12px; color:var(--text-black); }
 
   /* ===================== EXIT SCENE ===================== */
@@ -762,7 +764,7 @@
        a scroll to reach — top controls and score badge included. */
     #scene-intro{ padding:64px 18px 18px; }
     #scene-intro .headline{ font-size:20px; margin-bottom:6px; }
-    #scene-intro .sub{ font-size:13px; margin-bottom:6px; }
+    #scene-intro .sub{ font-size:15px; margin-bottom:6px; }
     .intro-stage{ flex-direction:column; height:auto; max-width:none; margin:4px auto 12px; }
     .intro-crowd{ flex:none; height:190px; }
     .intro-water{ flex:none; height:128px; padding-bottom:16px; }
@@ -869,9 +871,9 @@
     <p class="caption-italic intro-made-by" data-i18n="intro_made_by">Made by Katarina Peters</p>
     <h1 class="headline">The Squeeze</h1>
     <p class="sub" data-i18n="intro_hook">Enter the China–Germany cooperation scenario</p>
+    <button class="btn" id="intro-enter" data-i18n="intro_enter">Start</button>
     <p class="intro-role" data-i18n="intro_role"></p>
     <p class="intro-tag" data-i18n="intro_tag"></p>
-    <button class="btn" id="intro-enter" data-i18n="intro_enter">Start</button>
     <p class="caption-italic brand-footer-static" data-i18n="footer_credit">Peters Cross-Cultural Communication</p>
   </section>
 
@@ -2235,7 +2237,7 @@
        the rally speeds up. That chance is tied to the rally's existing speed-up (the ball
        already gets faster with every successful volley), not an arbitrary roll on top.
      A rally starts slow again after every point. */
-  const PP_WIN_SCORE = 10;
+  const PP_WIN_SCORE = 5;
   let ppRallyOver = false;   // true between the end of a point and the next serve
   function ppSideOpp(){ return ppPlayerSide === 'left' ? 'right' : 'left'; }
   function ppScoreOf(side){ return side === 'left' ? ppScoreLeft : ppScoreRight; }
